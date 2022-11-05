@@ -52,7 +52,7 @@ Additional options for providers:
       - you can specify a list of tags to synchronize (Free tags that point to non-commits will only be synchronized if they are specified directly)
       - you can specify specifed commit hash
       - unrelated - to allow synchronization of repositories with different histories
-  - pisynk:
+  - pisync:
      - fullcmp - for full file comparison, not just modification time
 
 Example of yaml:

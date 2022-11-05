@@ -1,0 +1,26 @@
+hubs:
+    githubsigdev: git https://github.com/sigdev2/
+    gittest: git ./gittest
+    gittestpysync: pysync ./gittest
+    manyhubs: git ./manyhubs1 ./manyhubs2 ./manyhubs3
+    managed_target: git ./managed_target managed
+shorts:
+    GitHub: githubsigdev pull
+
+System:
+    prosys: GitHub
+
+Tests:
+    pysync: gittestpysync fullcmp
+    clone_local: gittest
+    cloned: gittest
+    autocommit: gittest autocommit
+    freeze: gittest freeze
+    nosub: gittest nosub
+    notags: gittest notags
+    branch: gittest test
+    tag: gittest test
+    push: gittest faa8bb9a04ff28a1576f62c952e09a5eb9273867
+    freetags: gittest fasttag
+    managed_source: gittest managed_target
+    manyhub: manyhubs unrelated

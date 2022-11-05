@@ -1,13 +1,4 @@
-#Hubsmgr - manager of remotes hubs or repositories and files
-
-Console usage:
-
-    usage: hubsmgr FILE_OR_DIRECTORY
-
-Hubsmgr 
-
 <p align="center">
-    <img src="" alt="Logo" width="64" height="64">
     <h3 align="center">Hubsmgr</h3>
     <p align="center">Last version 0.1.0-a1</p>
 </p>

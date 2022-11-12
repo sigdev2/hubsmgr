@@ -25,7 +25,7 @@ Console usage:
 The program will load finded yaml file or all yaml files in the directory. For the processed files, folder will be created and will be synchronization by description in the contents of the yaml file.
 
 The yaml file contains a description of the structure of projects and the order of synchronization, consisting of the following elements:
- - A named list of **hubs**, where each hub contains a line with the following parameters:
+ - A named list of **hubs**, where each hub contains a line with paths or urls or hubs and the following parameters:
     - *The name of the provider*. Currently only **git** and **pysync** *(just script sync, no support for deleting files)* are supported
     - Sync options for the hub *(default **pull** and **push**)*:
         - **pull** - only download from the given pool of repositories
@@ -43,6 +43,8 @@ The yaml file contains a description of the structure of projects and the order 
  - Named list of abbreviations (**shorts**), where each abbreviation contains a list of arguments for projects as arguments and can be reused, including recursively
 
 Argument lists for the elements discussed above can be specified both as yaml lists and as strings, where spaces play the role of separators.
+
+The path for a hubs can be defined as a list of paths. During synchronization, non-existent paths and paths that match the current hub will be ignored. Windows supports multiple paths pointing to all system drives, they must start with the **windrives://** pseudo-protocol. For example: *windrives://MyRepositoryHub* will point to all folders located along the paths *A:/MyRepositoryHub*, *B:/MyRepositoryHub*, *C:/MyRepositoryHub*, *D:/MyRepositoryHub* and etc ...
 
 Additional options for providers:
    - **git**:

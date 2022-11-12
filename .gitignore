@@ -1,0 +1,16 @@
+hubsmgr.spec
+build/hubsmgr/Analysis-00.toc
+build/hubsmgr/base_library.zip
+build/hubsmgr/EXE-00.toc
+build/hubsmgr/hubsmgr.exe.manifest
+build/hubsmgr/hubsmgr.pkg
+build/hubsmgr/PKG-00.toc
+build/hubsmgr/PYZ-00.pyz
+build/hubsmgr/PYZ-00.toc
+build/hubsmgr/warn-hubsmgr.txt
+build/hubsmgr/xref-hubsmgr.html
+build/hubsmgr/localpycs/pyimod01_archive.pyc
+build/hubsmgr/localpycs/pyimod02_importers.pyc
+build/hubsmgr/localpycs/pyimod03_ctypes.pyc
+build/hubsmgr/localpycs/pyimod04_pywin32.pyc
+build/hubsmgr/localpycs/struct.pyc

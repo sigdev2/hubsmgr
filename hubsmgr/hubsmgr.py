@@ -47,7 +47,7 @@ def syncOptions(projectOpts, hubOpts):
 
     return (isSyncPull and isHubPull, isSyncPush and isHubPush)
 
-def createProvider( i, count, logTag,className, remote, projectName, projectPath, projectOpts, root, out):
+def createProvider( i, count, logTag, className, remote, projectName, projectPath, projectOpts, root, out):
     typeClass = globals()[className]
     provider = typeClass(remote, projectName, projectPath, root, (lambda message, isCommand : out(message)))
     Logger.partoperation(i, count, logTag, r'Create provider ' + remote + (r' ' + str(projectOpts) if len(projectOpts) > 0 else r'') + r' : ' + str(projectPath), True)
@@ -120,7 +120,7 @@ def processProvider(className, logTag, i, count, paths, urls, root, project):
            continue
         for remote in paths[path].remotes:
             if r'managed' in paths[path].opts:
-                remoteProvider = createProvider(i, count, logTag, className, r'origin', project.name, hostPath, project.opts, hostPath.parent, out)
+                remoteProvider = createProvider(i, count, logTag, className, r'origin', project.name, root / project.name, project.opts, hostPath.parent, out)
                 managedProviders.append((remoteProvider, paths[path].opts))
             else:
                 provider = createProvider(i, count, logTag, className, remote, project.name, projectPath, project.opts, root, out)

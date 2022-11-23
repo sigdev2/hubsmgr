@@ -35,6 +35,10 @@ class GitOptions:
         self.tags = set()
         self.arguments = set()
     
+    @staticmethod
+    def isNetSupport():
+        return True
+    
     def hasLegalFixedChekout(self):
         fixedRevisionsOrTag = set(self.remoteTags.values()).union(set(self.localTags.values())).union(self.revisions)
         return self.currentRevinsion in fixedRevisionsOrTag

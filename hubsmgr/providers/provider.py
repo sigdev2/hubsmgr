@@ -14,6 +14,14 @@ class Provider:
         self.out = out
         self.opts = set()
     
+    @staticmethod
+    def isLocalSupport():
+        return True
+    
+    @staticmethod
+    def isNetSupport():
+        return False
+    
     def updateRemotes(self):
         return -1
     

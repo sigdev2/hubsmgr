@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from providers.provider import Provider
-import os
 import shutil
 import hashlib
 import pathlib
@@ -18,15 +17,18 @@ class PythonSync(Provider):
         return 0
 
     def pull(self):
-        self.__compareFolder(pathlib.Path(self.url), self.path(), (r'fullcmp' in self.opts))
+        self.__comparePath(pathlib.Path(self.url), self.path())
         return 0
     
     def push(self):
-        self.__compareFolder(self.path(), pathlib.Path(self.url), (r'fullcmp' in self.opts))
+        self.__comparePath(self.path(), pathlib.Path(self.url))
         return 0
     
     def clone(self):
-        shutil.copytree(pathlib.Path(self.url), self.path(), copy_function=lambda src, dst, *args, follow_symlinks=True: self.__copyWithProgress(src, dst, *args, follow_symlinks=follow_symlinks))
+        source_path = pathlib.Path(self.url)
+        if not(source_path.exists()):
+            return 1
+        self.__copyTree(source_path, self.path())
         return 0
     
     def __copyWithProgress(self, src, dst, *args, follow_symlinks=True):
@@ -50,6 +52,15 @@ class PythonSync(Provider):
                     if hashlib.md5(chunck1).hexdigest() != hashlib.md5(chunck2).hexdigest():
                         return False
                 return True
+    
+    def __comparePath(self, source_path, target_path):
+        if source_path.exists():
+            self.__compareFolder(source_path, target_path, (r'fullcmp' in self.opts))
+    
+    def __copyTree(self, source_item, target_item):
+        shutil.copytree(source_item, target_item, symlinks=(r'symlinks' in self.opts), \
+                        copy_function=lambda src, dst, *args, follow_symlinks=True: \
+                            self.__copyWithProgress(src, dst, *args, follow_symlinks=follow_symlinks))
 
     def __compareFolder(self, source, target, cmpFiles):
         for source_item in source.iterdir():
@@ -60,10 +71,10 @@ class PythonSync(Provider):
                 else:
                     if source_item.lstat().st_mtime > target_item.lstat().st_mtime:
                         if not(cmpFiles) or not(self.__compare2file(source_item, target_item)):
-                            self.__copyWithProgress(source_item, target_item)
+                            self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in self.opts))
             else:
                 if source_item.is_dir():
-                    shutil.copytree(source_item, target_item, copy_function=lambda src, dst, *args, follow_symlinks=True: self.__copyWithProgress(src, dst, *args, follow_symlinks=follow_symlinks))
+                    self.__copyTree(source_item, target_item)
                 else:
-                    self.__copyWithProgress(source_item, target_item)
+                    self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in self.opts))
         return True

@@ -47,8 +47,16 @@ def syncOptions(projectOpts, hubOpts):
 
     return (isSyncPull and isHubPull, isSyncPush and isHubPush)
 
-def createProvider( i, count, logTag, className, remote, projectName, projectPath, projectOpts, root, out):
+def createProvider( i, count, logTag, is_url, className, remote, projectName, projectPath, projectOpts, root, out):
     typeClass = globals()[className]
+    if not(typeClass.isNetSupport()) or not(typeClass.isLocalSupport()):
+        if is_url:
+            if not(typeClass.isNetSupport()):
+                return None
+        else:
+            if not(typeClass.isLocalSupport()):
+                return None
+
     provider = typeClass(remote, projectName, projectPath, root, (lambda message, isCommand : out(message)))
     Logger.partoperation(i, count, logTag, r'Create provider ' + remote + (r' ' + str(projectOpts) if len(projectOpts) > 0 else r'') + r' : ' + str(projectPath), True)
     provider.setOptions(projectOpts)
@@ -107,8 +115,9 @@ def processProvider(className, logTag, i, count, paths, urls, root, project):
     Logger.partmessage(i, count, logTag, r'Create project remote providers')
     for url in urls:
         for remote in urls[url].remotes:
-            provider = createProvider(i, count, logTag, className, remote, project.name, url + project.name, project.opts, root, out)
-            providers.append([provider, urls[url].opts])
+            provider = createProvider(i, count, logTag, True, className, remote, project.name, url + project.name, project.opts, root, out)
+            if provider != None:
+                providers.append([provider, urls[url].opts])
 
     Logger.partmessage(i, count, logTag, r'Create project local providers')
     for path in paths:
@@ -120,11 +129,13 @@ def processProvider(className, logTag, i, count, paths, urls, root, project):
            continue
         for remote in paths[path].remotes:
             if r'managed' in paths[path].opts:
-                remoteProvider = createProvider(i, count, logTag, className, r'origin', project.name, root / project.name, project.opts, hostPath.parent, out)
-                managedProviders.append((remoteProvider, paths[path].opts))
+                remoteProvider = createProvider(i, count, logTag, False, className, r'origin', project.name, root / project.name, project.opts, hostPath.parent, out)
+                if remoteProvider != None:
+                    managedProviders.append((remoteProvider, paths[path].opts))
             else:
-                provider = createProvider(i, count, logTag, className, remote, project.name, projectPath, project.opts, root, out)
-                providers.append((provider, paths[path].opts))
+                provider = createProvider(i, count, logTag, False, className, remote, project.name, projectPath, project.opts, root, out)
+                if provider != None:
+                    providers.append((provider, paths[path].opts))
 
     Logger.partmessage(i, count, logTag, r'Init providers')
     result = initProviders(i, count, logTag, providers, project.opts)

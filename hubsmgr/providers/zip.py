@@ -35,9 +35,9 @@ class Zip(Provider):
         source_path_zip = source_path.with_suffix(r'.zip')
         target_path_zip = self.path().with_suffix(r'.zip')
 
-        if source_path_zip.exists():
+        if source_path_zip.exists() and zipfile.is_zipfile(source_path_zip):
             self.__compareZipZip(source_path_zip, target_path_zip, (r'fullcmp' in self.opts))
-        elif source_path.exists():
+        elif source_path.exists() and source_path.is_dir():
             self.__compareFolderZip(source_path_zip, target_path_zip, (r'fullcmp' in self.opts))
         else:
             return 1
@@ -69,10 +69,10 @@ class Zip(Provider):
         source_path_zip = source_path.with_suffix(r'.zip')
         target_path_zip = target_path.with_suffix(r'.zip')
 
-        sourceFolder = source_path.exists()
-        sourceZip = source_path_zip.exists()
-        targetFolder = target_path.exists()
-        targetZip = target_path_zip.exists()
+        sourceFolder = source_path.exists() and source_path.is_dir()
+        sourceZip = source_path_zip.exists() and zipfile.is_zipfile(source_path_zip)
+        targetFolder = target_path.exists() and target_path.is_dir()
+        targetZip = target_path_zip.exists() and zipfile.is_zipfile(target_path_zip)
 
         if sourceZip and targetZip:
             self.__compareZipZip(source_path_zip, target_path_zip, (r'fullcmp' in self.opts))

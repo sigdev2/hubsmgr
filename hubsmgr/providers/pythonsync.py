@@ -26,10 +26,10 @@ class PythonSync(Provider):
     
     def clone(self):
         source_path = pathlib.Path(self.url)
-        if not(source_path.exists()):
-            return 1
-        self.__copyTree(source_path, self.path())
-        return 0
+        if source_path.exists() and source_path.is_dir():
+            self.__copyTree(source_path, self.path())
+            return 0
+        return 1
     
     def __copyWithProgress(self, src, dst, *args, follow_symlinks=True):
         self.out(src + r' -> ' + dst, False)
@@ -54,7 +54,7 @@ class PythonSync(Provider):
                 return True
     
     def __comparePath(self, source_path, target_path):
-        if source_path.exists():
+        if source_path.exists() and source_path.is_dir():
             self.__compareFolder(source_path, target_path, (r'fullcmp' in self.opts))
     
     def __copyTree(self, source_item, target_item):

@@ -47,7 +47,7 @@ class PythonSync(Provider):
                         return chunck1 == chunck2
                     if chunck1 != chunck2:
                         return False
-                return True
+        return False
     
     def __comparePath(self, source_path, target_path):
         if source_path.exists() and source_path.is_dir():

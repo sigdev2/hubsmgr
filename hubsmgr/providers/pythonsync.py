@@ -3,7 +3,6 @@
 
 from providers.provider import Provider
 import shutil
-import hashlib
 import pathlib
 
 class PythonSync(Provider):
@@ -46,7 +45,7 @@ class PythonSync(Provider):
                     chunck2 = next(f2It, None)
                     if (chunck1 == None) or (chunck2 == None):
                         return chunck1 == chunck2
-                    if hashlib.md5(chunck1).hexdigest() != hashlib.md5(chunck2).hexdigest():
+                    if chunck1 != chunck2:
                         return False
                 return True
     
@@ -78,6 +77,7 @@ class PythonSync(Provider):
         sourceInfo = source.lstat()
         targetInfo = target.lstat()
 
+        # todo: no conflicts flag
         if (sourceInfo.st_mtime == targetInfo.st_mtime):
             if (sourceInfo.st_size != targetInfo.st_size) or \
                ((r'fullcmp' in self.opts) and not(self.__compare2file(source, target))):

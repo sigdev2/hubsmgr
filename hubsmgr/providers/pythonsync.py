@@ -76,17 +76,18 @@ class PythonSync(Provider):
     def __checkFiles(self, source, target):
         sourceInfo = source.lstat()
         targetInfo = target.lstat()
+        cmpFiles = (r'fullcmp' in self.opts)
 
-        # todo: no conflicts flag
-        if (sourceInfo.st_mtime == targetInfo.st_mtime):
-            if (sourceInfo.st_size != targetInfo.st_size) or \
-               ((r'fullcmp' in self.opts) and not(self.__compare2file(source, target))):
-                self.out(r'Conflict: ' + source + r' -> ' + target + r' (equal modification time files with different content)', False)
-                self.__copyWithProgress(source, target.with_suffix(r'.conflict.' + self.hub), follow_symlinks=(r'symlinks' in self.opts))
+        if sourceInfo.st_mtime == targetInfo.st_mtime:
+            if not(r'noconflicts' in self.opts):
+                if (sourceInfo.st_size != targetInfo.st_size) or \
+                   (cmpFiles and not(self.__compare2file(source, target))):
+                    self.out(r'Conflict: ' + source + r' -> ' + target + r' (equal modification time files with different content)', False)
+                    self.__copyWithProgress(source, target.with_suffix(r'.conflict.' + self.hub), follow_symlinks=(r'symlinks' in self.opts))
             return
 
         if sourceInfo.st_mtime < targetInfo.st_mtime:
             return
 
-        if sourceInfo.st_size != targetInfo.st_size or not(r'fullcmp' in self.opts) or not(self.__compare2file(source, target)):
+        if sourceInfo.st_size != targetInfo.st_size or not(cmpFiles) or not(self.__compare2file(source, target)):
             self.__copyWithProgress(source, target, follow_symlinks=(r'symlinks' in self.opts))

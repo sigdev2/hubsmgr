@@ -4,7 +4,7 @@ cd gittest
 rem todo: zip provider test
 
 rem test: pysync
-rem todo: fullcmp, conflicts
+rem todo: fullcmp, conflicts and noconflicts
 mkdir pysync
 cd pysync
 git init .

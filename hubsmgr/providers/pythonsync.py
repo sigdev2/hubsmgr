@@ -36,9 +36,6 @@ class PythonSync(Provider):
         return shutil.copy2(src, dst, *args, follow_symlinks=follow_symlinks)
 
     def __compare2file(self, file1, file2):
-        if file1.lstat().st_mtime != file2.lstat().st_mtime:
-            return False
-
         with file1.open('rb') as f1:
             with file2.open('rb') as f2:
                 f1It = iter(lambda : f1.read(5120), r'')
@@ -55,26 +52,41 @@ class PythonSync(Provider):
     
     def __comparePath(self, source_path, target_path):
         if source_path.exists() and source_path.is_dir():
-            self.__compareFolder(source_path, target_path, (r'fullcmp' in self.opts))
+            self.__compareFolder(source_path, target_path)
     
     def __copyTree(self, source_item, target_item):
         shutil.copytree(source_item, target_item, symlinks=(r'symlinks' in self.opts), \
                         copy_function=lambda src, dst, *args, follow_symlinks=True: \
                             self.__copyWithProgress(src, dst, *args, follow_symlinks=follow_symlinks))
 
-    def __compareFolder(self, source, target, cmpFiles):
+    def __compareFolder(self, source, target):
         for source_item in source.iterdir():
             target_item = target / source_item.name
             if target_item.exists():
                 if source_item.is_dir():
-                    self.__compareFolder(source_item, target_item, cmpFiles)
+                    self.__compareFolder(source_item, target_item)
                 else:
-                    if source_item.lstat().st_mtime > target_item.lstat().st_mtime:
-                        if not(cmpFiles) or not(self.__compare2file(source_item, target_item)):
-                            self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in self.opts))
+                    self.__checkFiles(source_item, target_item)
             else:
                 if source_item.is_dir():
                     self.__copyTree(source_item, target_item)
                 else:
                     self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in self.opts))
         return True
+    
+    def __checkFiles(self, source, target):
+        sourceInfo = source.lstat()
+        targetInfo = target.lstat()
+
+        if (sourceInfo.st_mtime == targetInfo.st_mtime):
+            if (sourceInfo.st_size != targetInfo.st_size) or \
+               ((r'fullcmp' in self.opts) and not(self.__compare2file(source, target))):
+                self.out(r'Conflict: ' + source + r' -> ' + target + r' (equal modification time files with different content)', False)
+                self.__copyWithProgress(source, target.with_suffix(r'.conflict.' + self.hub), follow_symlinks=(r'symlinks' in self.opts))
+            return
+
+        if sourceInfo.st_mtime < targetInfo.st_mtime:
+            return
+
+        if sourceInfo.st_size != targetInfo.st_size or not(r'fullcmp' in self.opts) or not(self.__compare2file(source, target)):
+            self.__copyWithProgress(source, target, follow_symlinks=(r'symlinks' in self.opts))

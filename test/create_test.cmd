@@ -1,7 +1,10 @@
 mkdir gittest
 cd gittest
 
+rem todo: zip provider test
+
 rem test: pysync
+rem todo: fullcmp, conflicts
 mkdir pysync
 cd pysync
 git init .

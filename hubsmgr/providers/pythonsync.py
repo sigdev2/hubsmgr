@@ -35,8 +35,8 @@ class PythonSync(Provider):
         return shutil.copy2(src, dst, *args, follow_symlinks=follow_symlinks)
 
     def __compare2file(self, file1, file2):
-        with file1.open('rb') as f1:
-            with file2.open('rb') as f2:
+        with file1.open(r'rb') as f1:
+            with file2.open(r'rb') as f2:
                 f1It = iter(lambda : f1.read(5120), r'')
                 f2It = iter(lambda : f2.read(5120), r'')
 

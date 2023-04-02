@@ -5,6 +5,7 @@ from providers.provider import Provider
 import zipfile
 import shutil
 import pathlib
+import datetime
 
 class Zip(Provider):
     def __init__(self, hub, name, url, root, out = None):
@@ -61,6 +62,14 @@ class Zip(Provider):
                         return False
         return False
     
+    def __getMTime(path):
+        return path.lstat().st_mtime
+
+    def __getMTimeZip(path):
+        dt = path.root.getinfo(str(path)[len(path.root.filename) + 1:]).date_time;
+        dt = datetime.datetime(dt[0], dt[1], dt[2], dt[3], dt[4], dt[5])
+        return dt.timestamp()
+    
     def __comparePaths(self, source_path, target_path):
         source_path_zip = source_path.with_suffix(r'.zip')
         target_path_zip = target_path.with_suffix(r'.zip')
@@ -78,26 +87,25 @@ class Zip(Provider):
             self.__compareZipFolder(source_path_zip, target_path)
     
     def __compareZipZip(self, source, target):
-        with zipfile.ZipFile(source, r'r') as source_zip:
-            with zipfile.ZipFile(target, r'a' + (r'r' if target.exists() else r'')) as target_zip:
-                self.__compareZip(pathlib.Path(source_zip), pathlib.Path(target_zip))
+        with zipfile.ZipFile(source, r'r') as source_zip, zipfile.ZipFile(target, r'a' + (r'r' if target.exists() else r'')) as target_zip:
+            self.__compareZip(pathlib.Path(source_zip), pathlib.Path(target_zip), self.__getMTimeZip, self.__getMTimeZip)
     
     def __compareFolderZip(self, source, target):
-        with zipfile.ZipFile(target, r'a' + (r'r' if target.exists() else r'')) as target_zip:
-            self.__compareZip(source, pathlib.Path(target_zip))
-    
-    def __compareZipZip(self, source, target):
-        with zipfile.ZipFile(source, r'r') as source_zip:
-            self.__compareZip(pathlib.Path(source_zip), target)
+        with zipfile.ZipFile(self, target, r'a' + (r'r' if target.exists() else r'')) as target_zip:
+            self.__compareZip(source, pathlib.Path(target_zip), self.__getMTime, self.__getMTimeZip)
 
-    def __compareZip(self, source, target):
+    def __compareZipFolder(self, source, target):
+        with zipfile.ZipFile(source, r'r') as source_zip:
+            self.__compareZip(zipfile.Path(source_zip), target, self.__getMTimeZip, self.__getMTime)
+
+    def __compareZip(self, source, target, sourceMTimeF, targetMTimeF):
         for source_item in source.iterdir():
             target_item = target / source_item.name
             if target_item.exists():
                 if source_item.is_dir():
                     self.__compareZip(source_item, target_item)
                 else:
-                    if source_item.lstat().st_mtime > target_item.lstat().st_mtime:
+                    if sourceMTimeF(source_item) > targetMTimeF(target_item):
                         if not(r'fullcmp' in self.opts) or not(self.__compare2file(source_item, target_item)):
                             self.__copyWithProgress(source_item, target_item)
             else:

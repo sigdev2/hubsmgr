@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from operator import truediv
 import os
 import sys
 import pathlib
 import traceback
+
 from utility.logger import Logger
 from parsers.specyaml import SpecYamlParser
 from parsers.shortsparser import ShortsParser
@@ -13,6 +13,7 @@ from parsers.projectsparser import ProjectsParser
 from parsers.hubsparser import HubsParser
 from providers.git import Git
 from providers.pythonsync import PythonSync
+
 from time import sleep
 
 class UrlProperty:

@@ -17,7 +17,6 @@ class ArchiveProxy(ProviderProxy):
         self.__tempdir = tempfile.TemporaryDirectory()
         
         self.__packed = source
-
         todo store dates
         if self.isExist():
             if source.path.endswith(r'.zip'):
@@ -76,5 +75,23 @@ class ArchiveProxy(ProviderProxy):
     
     def __pack(self):
         todo store dates
-        todo pack
+        
+        z = zipfile.ZipFile(zip_fname, "w", compression=zipfile.ZIP_DEFLATED)
+        for root, dirs, files in os.walk(in_dir):
+            for file in files:
+                in_fname = os.path.join(root, file)
+                in_stat = os.stat(in_fname)
+                info = zipfile.ZipInfo(in_fname)
+                info.filename = os.path.relpath(in_fname, in_dir)
+                if os.path.sep == "\\":
+                    info.filename = os.path.relpath(in_fname, in_dir).replace("\\", "/")
+                info.date_time = time.localtime(in_stat.st_mtime)
+                perms = stat.S_IMODE(in_stat.st_mode) | stat.S_IFREG
+                info.external_attr = perms << 16
+                with open_readable(in_fname, "rb") as fobj:
+                    contents = fobj.read()
+                z.writestr(info, contents, zipfile.ZIP_DEFLATED)
+            pass
+        z.close()
+
         return -1

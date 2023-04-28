@@ -1,27 +1,23 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import parserutils
 import re
-
-class Short:
-    __slots__ = [r'params', r'id']
-
-    def __init__(self, id, params):
-        self.id = id
-        self.params = params
+from parseitem import ParseItem
 
 class ShortsParser:
     __slots__ = [r'shorts']
+
+    SHORTS_CHECK_RX = re.compile(r'^/shorts/[A-z_-]+')
 
     def __init__(self):
         self.shorts = dict()
     
     def check(self, path):
-        return re.match(r'^/shorts/[A-z_-]+', path)
+        return ShortsParser.SHORTS_CHECK_RX.match(path)
 
     def process(self, shortParams, shortName):
-        if not(type(shortParams) is list):
-            shortParams = shortParams.split()
-        if len(shortParams) != 0:
-            self.shorts[shortName] = Short(shortName, set(shortParams))
+        shortParams = parserutils.parseSet(shortParams)
+        if len(shortParams) > 0:
+            self.shorts[shortName] = ParseItem(shortName, shortParams)
         return True

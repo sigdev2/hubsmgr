@@ -1,21 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import parserutils
 import re
-
-class Project:
-    __slots__ = [r'name', r'syncParams', r'hubs', r'opts']
-
-    def __init__(self, name, syncParams, hubs, opts):
-        self.name = name
-        self.syncParams = syncParams
-        self.hubs = hubs
-        self.opts = opts
+from parseitem import ParseItem
 
 class ProjectsParser:
     __slots__ = [r'projects', r'shorts', r'hubs']
 
-    PROJECT_PROPS = set([r'pull', r'push', r'freeze', r'autocommit'])
+    PROJECT_PROPS = { r'sync': [r'pull', r'push', r'freeze', r'autocommit'] }
+    PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-]+')
 
     def __init__(self, shorts, hubs):
         self.projects = dict()
@@ -23,44 +17,22 @@ class ProjectsParser:
         self.hubs = hubs
 
     def check(self, path):
-        return re.match(r'^(?!/hubs|/shorts)/[A-z_-]+', path)
+        return ProjectsParser.PROJECT_CHECK_RX.match(path)
 
     def process(self, project, projectName):
-        if not(type(project) is str) and not(type(project) is list):
-            return False
-        if type(project) is str:
-            project = project.split()
-
-        project = set(self.__parseShortsKeys(set(project)))
-        
-        syncParams = project.intersection(ProjectsParser.PROJECT_PROPS)
-        if len(syncParams) == 0:
-            syncParams = set([r'pull', r'push'])
-        project -= syncParams
-
-        hubsKeys = project.intersection(set(self.hubs.keys()))
-        if len(hubsKeys) == 0:
-            return True
-        project -= hubsKeys
-
-        hubs = []
-        for key in hubsKeys:
-            hubs.append(self.hubs[key])
-        
-        self.projects[projectName] = Project(projectName, syncParams, hubs, project)
+        project = parserutils.parseSet(project)
+        if len(project) > 0:
+            keywords = ProjectsParser.PROJECT_PROPS
+            keywords[r'hubs'] = self.hubs.keys()
+            parameters = parserutils.parseKeywords(self.__unpack(project), keywords, r'options')
+            hubsKeys = parameters[r'hubs']
+            hubs = [self.hubs[key] for key in hubsKeys if key in self.hubs]
+            parameters[r'hubs'] = hubs
+            if len(hubs) > 0:
+                self.projects[projectName] = ParseItem(projectName, parameters)
         return True
     
-    def __parseShortsKeys(self, shortKeys):
-        index = 0
-        indexedSet = list(shortKeys)
-        while index < len(indexedSet):
-            key = indexedSet[index]
-            if key in self.shorts:
-                del indexedSet[index]
-                for item in self.shorts[key].params:
-                    if not(item in indexedSet):
-                        indexedSet.append(item)
-                continue
-            index += 1
-        return set(indexedSet)
+    def __unpack(self, keys, vis = set()):
+        return { sub for key in keys if not(key in vis)
+                     for sub in (self.__unpack(self.shorts[key].params, vis.union({key})) if key in self.shorts else {key}) }
 

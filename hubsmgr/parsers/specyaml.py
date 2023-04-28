@@ -1,31 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import yaml
+from yaml import *
 
 class SpecYamlParser:
-    __slots__ = [r'__file', r'__parsers']
+    __slots__ = []
 
-    def __init__(self, file):
-        self.__file = file
-        self.__parsers = []
-
-    def addParser(self, parser):
-        self.__parsers.append(parser)
-
-    def parse(self):
-        self.__recParse(yaml.safe_load(self.__file), r'', r'')
+    def parse(self, parsers, file):
+        self.__recParse(parsers, safe_load(file), r'', r'')
     
-    def __recParse(self, data, path, node):
-        if len(path) > 0:
-            for parser in self.__parsers:
-                if parser.check(path):
-                    if parser.process(data, node):
-                        return
-
-        if isinstance(data, dict):
-            for dataKey in data:
-                self.__recParse(data[dataKey], path + r'/' + dataKey, dataKey)
-        elif isinstance(data, list):
-            for index in range(data):
-                self.__recParse(data[index], path + r'/' + str(index), str(index))
+    def __recParse(self, parsers, data, path, node):
+        for parser in (parsers if len(path) > 0 else []):
+            if parser.check(path) and parser.process(data, node):
+                return
+        for dataKey in (data if type(data) == dict else (range(data) if type(data) == list else [])):
+            self.__recParse(parsers, data[dataKey], path + r'/' + str(dataKey), str(dataKey))

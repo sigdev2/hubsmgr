@@ -2,52 +2,47 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
+import os
 
 class Provider:
-    __slots__ = [r'hub', r'name', r'url', r'root', r'out', r'opts']
+    __slots__ = [r'path', r'out']
 
-    def __init__(self, hub, name, url, root, out = None):
-        self.hub = hub
-        self.name = name
-        self.url = url
-        self.root = root
+    def __init__(self, path, out = None):
+        self.path = path
         self.out = out
-        self.opts = set()
     
-    @staticmethod
-    def isLocalSupport():
-        return True
-    
-    @staticmethod
-    def isNetSupport():
+    def isPullSupport(self):
         return False
     
-    def updateRemotes(self):
-        return -1
+    def isPushSupport(self):
+        return False
     
-    def path(self):
-        return self.root / self.name
-
-    def remoteName(self):
-        return self.hub + r'_' + self.name
+    def isCommitSupport(self):
+        return False
+    
+    def isCloneSupport(self):
+        return False
+    
+    def isValid(self):
+        return False
     
     def isExist(self):
-        p = self.path()
-        return p.exists() and p.is_dir()
-
-    def setOptions(self, val):
-        self.opts = val
-
+        return os.path.exists(self.path) and os.path.is_dir(self.path) and (len(os.listdir(self.path)) > 0)
+    
+    def addRemotes(self, remoteName, remotes):
+        #todo: defence from same or child remotes
+        pass
+    
     def commit(self, message, addAll):
         return -1
 
-    def pull(self):
+    def pull(self, remote, opts):
         return -1
     
-    def push(self):
+    def push(self, remote, opts):
         return -1
     
-    def clone(self):
+    def clone(self, remote, opts):
         return -1
 
     def run(self, cmd, out, cwd):

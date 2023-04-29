@@ -3,7 +3,7 @@
 
 from providerproxy import ProviderProxy
 from archiveproxy import ArchiveProxy
-import pathutils
+import utility.archiveutils
 
 class ManagedProxy(ProviderProxy):
     __slots__ = [r'__managed']
@@ -68,7 +68,7 @@ class ManagedProxy(ProviderProxy):
         providerClass = type(baseProvider)
         for remote in remotes:
             provider = providerClass(remote, baseProvider.out)
-            if pathutils.isSupportedArchive(baseProvider.path):
+            if utility.archiveutils.isSupportedArchive(baseProvider.path):
                 provider = ArchiveProxy(provider)
             self.__managed[remoteName].append(provider)
             provider.addRemotes(remoteName, [baseProvider.path])

@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import pathutils
+import utility.pathutils
+import utility.archiveutils
 from synccommands import SyncCommands
 from providers.git import Git
 from providers.pythonsync import PythonSync
@@ -35,7 +36,7 @@ class ProjectProcessor:
         
         for remoteName, hub in project.parameters[r'hubs'].items():
             opts = hub.parameters[r'options']
-            paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], name, self.__root)
+            paths = utility.pathutils.unpackSyncPaths(hub.parameters[r'paths'], name, self.__root)
             isHubPull, isHubPush = getPulPushOptions(opts)
             provider = self.__createProvider(hub.parameters[r'providers'][0], projectPath, remoteName, paths, r'managed' in opts)
             if provider != None:
@@ -53,7 +54,7 @@ class ProjectProcessor:
         elif name == r'git':
             provider = Git(path, self.__out)
         if provider != None:
-            if pathutils.isSupportedArchive(path):
+            if utility.archiveutils.isSupportedArchive(path):
                 provider = ArchiveProxy(provider)
             if managed:
                 provider = ManagedProxy(provider)

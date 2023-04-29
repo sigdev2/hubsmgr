@@ -5,7 +5,6 @@ import re
 import os
 
 PATH_RX = re.compile(r'^([A-z]+\:\/{1,2}|[A-z]+\:|\/{1}|\\{1}|\.{1,2})?\/|\\')
-ARCHIVE_FORMATS = [r'.zip', r'.tar', r'.tar.gz', r'.tgz', r'.tar.bz2', r'.tar.bzip2', r'.tbz2', r'.tbzip2', r'.tar.lzma', r'.tar.xz', r'.txz', r'.tlzma', r'.iso', r'.isz']
 
 def normalizePathEnding(path):
     if path[-1] != r'/':
@@ -41,11 +40,3 @@ def unpackSyncPaths(paths, target, relative):
             elif protocol == r'.' or protocol == r'..':
                     out.add(relative + os.path.abspath(subpath))
     return out
-
-def isSupportedArchive(path):
-    isArchive = False
-    for format in ARCHIVE_FORMATS:
-        if path.endswith(format):
-            isArchive = True
-            break
-    return isArchive

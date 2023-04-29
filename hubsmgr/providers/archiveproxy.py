@@ -9,6 +9,19 @@ import lzma
 import bz2
 import os
 
+def openArchive(path, mode):
+    if path.endswith(r'.zip'):
+        return zipfile.ZipFile(path)
+    elif path.endswith(r'.tar'):
+        return tarfile.open(path, mode + r':')
+    elif path.endswith(r'.tar.gz') or path.endswith(r'.tgz'):
+        return tarfile.open(path, mode + r':gz')
+    elif path.endswith(r'.tar.bz2') or path.endswith(r'.tar.bzip2') or path.endswith(r'.tbz2') or path.endswith(r'.tbzip2'):
+        return tarfile.open(path, mode + r':bz2')
+    elif path.endswith(r'.tar.lzma') or path.endswith(r'.tar.xz') or path.endswith(r'.txz') or path.endswith(r'.tlzma'):
+        xz_file = lzma.LZMAFile(path, mode=mode)
+        return tarfile.open(mode=mode, fileobj=xz_file)
+
 #todo: support iso and isz
 class ArchiveProxy(ProviderProxy):
     __slots__ = [r'__packed', r'__tempdir']

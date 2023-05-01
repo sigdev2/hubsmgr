@@ -30,7 +30,6 @@ class Provider:
         return os.path.exists(self.path) and os.path.is_dir(self.path) and (len(os.listdir(self.path)) > 0)
     
     def addRemotes(self, remoteName, remotes):
-        #todo: defence from same or child remotes
         pass
     
     def commit(self, message, addAll):

@@ -3,6 +3,7 @@
 
 import re
 import os
+import pathlib
 
 PATH_RX = re.compile(r'^([A-z]+\:\/{1,2}|[A-z]+\:|\/{1}|\\{1}|\.{1,2})?\/|\\')
 
@@ -20,23 +21,33 @@ def generateFullPath(path, target):
         newPath += target + r'/'
     return newPath
 
+def isChildPathOrSame(path, root):
+    return path == root or pathlib.Path(path).is_relative_to(root)
+
 def unpackSyncPaths(paths, target, relative):
     out = set()
-    relative = normalizePathEnding(relative.strip())
+    relative = os.path.abspath(normalizePathEnding(relative.strip()))
     for path in paths:
         path = normalizePathEnding(path.strip())
         path = generateFullPath(path, target)
+
         match = PATH_RX.search(path)
         if match != None:
             protocol = match.group(1)
             if protocol.endswith(r':/'):
                 out.add(path)
             elif protocol == r'file://':
-                out.add(os.path.abspath(path[len(protocol):]))
+                absPath = os.path.abspath(path[len(protocol):])
+                if not(isChildPathOrSame(absPath)):
+                    out.add(absPath)
             elif protocol == r'windrives:/':
                 corePath = path[len(protocol):]
                 for subpath in [ x + r':/' + corePath for x in r'QWERTYUIOPASDFGHJKLZXCVBNM' ]:
-                    out.add(os.path.abspath(subpath))
+                    absPath = os.path.abspath(subpath)
+                    if not(isChildPathOrSame(absPath)):
+                        out.add(absPath)
             elif protocol == r'.' or protocol == r'..':
-                    out.add(relative + os.path.abspath(subpath))
+                    absPath = os.path.abspath(path)
+                    if not(isChildPathOrSame(absPath)):
+                        out.add(absPath)
     return out

@@ -6,6 +6,7 @@ import os
 import pathlib
 
 PATH_RX = re.compile(r'^([A-z]+\:\/{1,2}|[A-z]+\:|\/{1}|\\{1}|\.{1,2})?\/|\\')
+URL_RX = re.compile(r'^([A-z]+):\/\/')
 
 def normalizePathEnding(path):
     if path[-1] != r'/':
@@ -20,6 +21,12 @@ def generateFullPath(path, target):
     if newPath == path:
         newPath += target + r'/'
     return newPath
+
+def isUrl(path):
+    match = URL_RX.search(path)
+    if match != None:
+        protocol = match.group(1)
+        return protocol != r'file' and protocol != r'windrives'
 
 def isChildPathOrSame(path, root):
     return path == root or pathlib.Path(path).is_relative_to(root)

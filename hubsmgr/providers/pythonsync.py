@@ -2,33 +2,61 @@
 # -*- coding: utf-8 -*-
 
 from providers.provider import Provider
+import utility.pathutils
 import shutil
 import pathlib
 
 class PythonSync(Provider):
-    def __init__(self, hub, name, url, root, out = None):
-        super(PythonSync, self).__init__(hub, name, url, root, out)
-    
-    def updateRemotes(self):
-        return 0
+    __slots__ = [r'__remotes']
 
+    def __init__(self, path, out = None):
+        super(PythonSync, self).__init__(path, out)
+    
+    def isPullSupport(self):
+        return True
+    
+    def isPushSupport(self):
+        return True
+    
+    def isCloneSupport(self):
+        return False
+    
+    def isValid(self):
+        return not(utility.pathutils.isUrl(self.path))
+    
+    def addRemotes(self, remoteName, remotes):
+        if not(remoteName in self.__remotes):
+            self.__remotes[remoteName] = []
+        for remote in remotes:
+            if not(utility.pathutils.isUrl(remote)):
+                self.__remotes[remoteName].append(remote)
+    
     def commit(self, message, addAll):
-        return 0
+        return -1
 
-    def pull(self):
-        self.__comparePath(pathlib.Path(self.url), self.path())
+    def pull(self, remote, opts):
+        if not(remote in self.__remotes):
+           return -1
+        for path in self.__remotes[remote]:
+            self.__comparePath(pathlib.Path(path), pathlib.Path(self.path), opts)
         return 0
     
-    def push(self):
-        self.__comparePath(self.path(), pathlib.Path(self.url))
+    def push(self, remote, opts):
+        if not(remote in self.__remotes):
+           return -1
+        for path in self.__remotes[remote]:
+            self.__comparePath(pathlib.Path(self.path), pathlib.Path(path), remote, opts)
         return 0
     
-    def clone(self):
-        source_path = pathlib.Path(self.url)
-        if source_path.exists() and source_path.is_dir():
-            self.__copyTree(source_path, self.path())
-            return 0
-        return 1
+    def clone(self, remote, opts):
+        if not(remote in self.__remotes):
+           return -1
+        for path in self.__remotes[remote]:
+            source_path = pathlib.Path(path)
+            if source_path.exists() and source_path.is_dir():
+                self.__copyTree(source_path, pathlib.Path(self.path), opts)
+                return 0
+        return -1
     
     def __copyWithProgress(self, src, dst, *args, follow_symlinks=True):
         self.out(src + r' -> ' + dst, False)
@@ -49,45 +77,45 @@ class PythonSync(Provider):
                         return False
         return False
     
-    def __comparePath(self, source_path, target_path):
+    def __comparePath(self, source_path, target_path, remoteName, opts):
         if source_path.exists() and source_path.is_dir():
-            self.__compareFolder(source_path, target_path)
+            self.__compareFolder(source_path, target_path, remoteName, opts)
     
-    def __copyTree(self, source_item, target_item):
-        shutil.copytree(source_item, target_item, symlinks=(r'symlinks' in self.opts), \
+    def __copyTree(self, source_item, target_item, opts):
+        shutil.copytree(source_item, target_item, symlinks=(r'symlinks' in opts), \
                         copy_function=lambda src, dst, *args, follow_symlinks=True: \
                             self.__copyWithProgress(src, dst, *args, follow_symlinks=follow_symlinks))
 
-    def __compareFolder(self, source, target):
+    def __compareFolder(self, source, target, remoteName, opts):
         for source_item in source.iterdir():
             target_item = target / source_item.name
             if target_item.exists():
                 if source_item.is_dir():
-                    self.__compareFolder(source_item, target_item)
+                    self.__compareFolder(source_item, target_item, remoteName, opts)
                 else:
-                    self.__checkFiles(source_item, target_item)
+                    self.__checkFiles(source_item, target_item, remoteName, opts)
             else:
                 if source_item.is_dir():
-                    self.__copyTree(source_item, target_item)
+                    self.__copyTree(source_item, target_item, opts)
                 else:
-                    self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in self.opts))
+                    self.__copyWithProgress(source_item, target_item, follow_symlinks=(r'symlinks' in opts))
         return True
     
-    def __checkFiles(self, source, target):
+    def __checkFiles(self, source, target, remoteName, opts):
         sourceInfo = source.lstat()
         targetInfo = target.lstat()
-        cmpFiles = (r'fullcmp' in self.opts)
+        cmpFiles = (r'fullcmp' in opts)
 
         if sourceInfo.st_mtime == targetInfo.st_mtime:
-            if not(r'noconflicts' in self.opts):
+            if not(r'noconflicts' in opts):
                 if (sourceInfo.st_size != targetInfo.st_size) or \
                    (cmpFiles and not(self.__compare2file(source, target))):
                     self.out(r'Conflict: ' + source + r' -> ' + target + r' (equal modification time files with different content)', False)
-                    self.__copyWithProgress(source, target.with_suffix(r'.conflict.' + self.hub), follow_symlinks=(r'symlinks' in self.opts))
+                    self.__copyWithProgress(source, target.with_suffix(r'.conflict.' + remoteName), follow_symlinks=(r'symlinks' in opts))
             return
 
         if sourceInfo.st_mtime < targetInfo.st_mtime:
             return
 
         if sourceInfo.st_size != targetInfo.st_size or not(cmpFiles) or not(self.__compare2file(source, target)):
-            self.__copyWithProgress(source, target, follow_symlinks=(r'symlinks' in self.opts))
+            self.__copyWithProgress(source, target, follow_symlinks=(r'symlinks' in opts))

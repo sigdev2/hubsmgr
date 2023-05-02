@@ -5,6 +5,7 @@ from providers.provider import Provider
 import utility.pathutils
 import shutil
 import pathlib
+import os
 
 class PythonSync(Provider):
     __slots__ = [r'__remotes']
@@ -117,5 +118,7 @@ class PythonSync(Provider):
         if sourceInfo.st_mtime < targetInfo.st_mtime:
             return
 
-        if sourceInfo.st_size != targetInfo.st_size or not(cmpFiles) or not(self.__compare2file(source, target)):
+        if not(cmpFiles) or not(self.__compare2file(source, target)):
             self.__copyWithProgress(source, target, follow_symlinks=(r'symlinks' in opts))
+        else:
+            os.utime(target, (sourceInfo.st_mtime, sourceInfo.st_mtime))

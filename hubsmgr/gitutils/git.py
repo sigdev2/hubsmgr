@@ -1,10 +1,52 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import re
 
+
+class Git:
+    __slots__ = [r'path', r'run']
+
+    BRANCH_NAME_RX = re.compile(r'([^\s\*]+)')
+
+    def __init__(self, path, run):
+        self.path = path
+        self.run = run
+
+    def hasChanges(self):
+        hasChanges = [False]
+        def inserter(line, isCommand):
+            if not(isCommand) and len(line) > 0:
+                hasChanges[0] = True
+        if self.run(r'git status --porcelain', inserter, self.path) != 0:
+            return False
+        return hasChanges[0]
     
-    def __updateChanges(self):
-        self.opts.hasChanges = self.__hasChanges()
+    def getCurrentBranch(self):
+        current = [r'']
+        def inserter(line, isCommand):
+            if not(isCommand):
+                current[0] = line
+        if self.run(r'git branch --show-current', inserter, self.path) != 0:
+            return r''
+        return current[0]
+    
+    def getLocalBranches(self):
+        branches = {}
+        def inserter(line, isCommand):
+            if not(isCommand) and not(r'HEAD detached' in line):
+                matches = Git.BRANCH_NAME_RX.finditer(line)
+                for matchNum, match in enumerate(matches, start=1):
+                    branch = match.group(1)
+                    branches[branch] = self.__getRevision(branch)
+        if self.run(r'git branch', inserter, self.path) != 0:
+            return {self}
+        return branches
+    
+    def getRemoteBranches(remoteName):
+
+
+
 
     def __updateBranchesAndTags(self):
         self.opts.currentBranch = self.__getCurrentBranch()
@@ -19,15 +61,6 @@
             self.opts.remoteTags = self.__getRemoteTags(self.opts.remoteName)
             realTags = set(self.opts.localTags.keys()).union(self.opts.remoteTags.keys())
             self.opts.tags = realTags.intersection(self.opts.arguments)
-
-    def __hasChanges(self):
-        hasChanges = [False]
-        def inserter(line, isCommand):
-            if not(isCommand) and len(line) > 0:
-                hasChanges[0] = True
-        if self.run(r'git status --porcelain', inserter, self.path()) != 0:
-            return False
-        return hasChanges[0]
     
     def __getRemoteUrl(self, remote):
         url = [r'']

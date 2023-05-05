@@ -1,6 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+    def __updateBranchesAndTags(self):
+        self.opts.currentBranch = self.__getCurrentBranch()
+        self.opts.localBranches = self.__getLocalBranches()
+        self.opts.remoteBranches = self.__getRemoteBranches(self.opts.remoteName)
+        self.opts.currentRevinsion = self.__getRevision(r'HEAD')
+        realBranches = set(self.opts.localBranches.keys()).union(self.opts.remoteBranches.keys())
+        self.opts.branches = realBranches.intersection(self.opts.arguments)
+
+        if not(self.opts.notags):
+            self.opts.localTags = self.__getLocalTags()
+            self.opts.remoteTags = self.__getRemoteTags(self.opts.remoteName)
+            realTags = set(self.opts.localTags.keys()).union(self.opts.remoteTags.keys())
+            self.opts.tags = realTags.intersection(self.opts.arguments)
+            
 class GitOptions:
     __slots__ = [r'remoteName', r'localBranches', r'remoteBranches', r'localTags', r'remoteTags', r'currentBranch', r'currentRevinsion', r'branches', r'tags', r'revisions', r'notags', r'nosubmodules', r'hasChanges', r'unrelated', r'arguments']
     def __init__(self):

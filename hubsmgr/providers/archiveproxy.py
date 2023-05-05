@@ -17,6 +17,7 @@ class ArchiveProxy(ProviderProxy):
         self.__packed = source
         if self.isExist():
             archive = arhive.Archive(self.__packed.path)
+            todo unpack only when run first operation
             archive.unpackall(self.__tempdir)
 
         baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
@@ -36,12 +37,14 @@ class ArchiveProxy(ProviderProxy):
         return -1
 
     def pull(self, remote, opts):
+        todo chack changes by data
         e = super(ArchiveProxy, self).pull(remote, opts)
         if e != 0:
             return e
         return self.__pack()
         
     def push(self, remote, opts):
+        todo chack changes by data
         e = super(ArchiveProxy, self).push(remote, opts)
         if e != 0:
             return e

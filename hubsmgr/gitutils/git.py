@@ -10,6 +10,7 @@ class Git:
     __slots__ = [r'path', r'run']
     
     GIT_DIR = r'.git'
+    GIT_SUBDIRS = (r'hooks', r'info', r'objects', r'logs', r'refs')
 
     BRANCH_NAME_RX = re.compile(r'([^\s\*]+)')
     REMOTE_BRANCH_RX = re.compile(r'([^\s]+)\s*refs/heads/([^\s]+)')
@@ -23,9 +24,15 @@ class Git:
     # path
 
     @functools.cache
-    def isRepository(self):
-        gitSignPath = pathlib.path(self.path) / Git.GIT_DIR
-        return gitSignPath.exists() and gitSignPath.is_dir() and (len(os.listdir(gitSignPath)) > 0)
+    def isRepository(self, bare):
+        root = pathlib.path(self.path)
+        for subdir in Git.GIT_SUBDIRS:
+            if not(bare):
+                subdir = Git.GIT_DIR + os.sep + subdir
+            gitSignPath = root / subdir
+            if not(gitSignPath.exists()) or not(gitSignPath.is_dir()):
+                return False
+        return True
     
     # objects
 
@@ -229,10 +236,11 @@ class Git:
             return [cmd]
         return self.run(cmd, self.out)
         
-    def clone(self, remoteName, url, getCommands = False):
+    def clone(self, remoteName, url, bare, getCommands = False):
         p = pathlib.Path(self.path)
         name = p.parts[-1]
-        opts = r' -o ' + remoteName
+        opts = r'--bare' if bare else r''
+        opts += r' -o ' + remoteName
         opts += r' ' + url
         opts += r' .' + os.sep + name + os.sep
 
@@ -269,6 +277,8 @@ class Git:
         if getCommands:
             return [cmd]
         return self.run(cmd, self.out)
+    
+    # cache cleaners
     
     def clearCurrentBranchCache(self):
         self.getCurrentBranch.cache_clear()

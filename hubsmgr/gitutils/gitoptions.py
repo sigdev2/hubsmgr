@@ -1,63 +1,59 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-    def __updateBranchesAndTags(self):
-        self.opts.currentBranch = self.__getCurrentBranch()
-        self.opts.localBranches = self.__getLocalBranches()
-        self.opts.remoteBranches = self.__getRemoteBranches(self.opts.remoteName)
-        self.opts.currentRevinsion = self.__getRevision(r'HEAD')
-        realBranches = set(self.opts.localBranches.keys()).union(self.opts.remoteBranches.keys())
-        self.opts.branches = realBranches.intersection(self.opts.arguments)
-
-        if not(self.opts.notags):
-            self.opts.localTags = self.__getLocalTags()
-            self.opts.remoteTags = self.__getRemoteTags(self.opts.remoteName)
-            realTags = set(self.opts.localTags.keys()).union(self.opts.remoteTags.keys())
-            self.opts.tags = realTags.intersection(self.opts.arguments)
+import gitoptions
             
 class GitOptions:
-    __slots__ = [r'remoteName', r'localBranches', r'remoteBranches', r'localTags', r'remoteTags', r'currentBranch', r'currentRevinsion', r'branches', r'tags', r'revisions', r'notags', r'nosubmodules', r'hasChanges', r'unrelated', r'arguments']
-    def __init__(self):
-        self.remoteName = r''
-        self.notags = False
-        self.nosubmodules = False
-        self.unrelated = False
-        self.hasChanges = False
-        self.currentBranch = {}
-        self.localBranches = {}
-        self.remoteBranches = {}
-        self.currentRevinsion = r''
-        self.branches = set()
+    __slots__ = [r'nosubmodules',
+                 r'unrelated',
+                 r'notags',
+                 r'revisions',
+                 r'branches',
+                 r'tags',
+                 r'git',
+                 r'remoteName']
+    
+    def __init__(self, remoteName, textOpts, git):
+        self.git = git
+        self.remoteName = remoteName
+
+        localBranches = self.git.getLocalBranches()
+        remoteBranches = self.git.getRemoteBranches(self.remoteName)
+        realBranches = set(localBranches.keys()).union(remoteBranches.keys())
+
         self.revisions = set()
-        self.localTags = {}
-        self.remoteTags = {}
+        arguments = set()
+        for opt in textOpts:
+            if gitoptions.is_sha1(opt):
+                self.revisions.add(opt)
+            elif opt == r'notags':
+                self.notags = True
+            elif opt == r'nosub':
+                self.nosubmodules = True
+            elif opt == r'unrelated':
+                self.unrelated = True
+            else:
+                arguments.add(opt)
+        
+        self.branches = realBranches.intersection(arguments)
         self.tags = set()
-        self.arguments = set()
+        
+        if not(self.notags):
+            localTags = self.getLocalTags()
+            remoteTags = self.getRemoteTags(self.remoteName)
+            realTags = set(localTags.keys()).union(remoteTags.keys())
+            self.tags = realTags.intersection(arguments)
     
-    @staticmethod
-    def isNetSupport():
-        return True
-    
-    def hasLegalFixedChekout(self):
-        fixedRevisionsOrTag = set(self.remoteTags.values()).union(set(self.localTags.values())).union(self.revisions)
-        return self.currentRevinsion in fixedRevisionsOrTag
-    
-    def canCommit(self):
-        if len(self.currentBranch) <= 0:
-            return False
-        if self.hasLegalFixedChekout():
-            return False
-        if not(self.hasChanges):
-            return False
-        return True
-    
-    def isSyncAll(self):
+    def isEmpty(self):
         return (len(self.branches) <= 0) and (len(self.tags) <= 0) and (len(self.revisions) <= 0)
     
     def branchesToPull(self):
         branches = {}
-        localBranches = self.localBranches.keys()
-        checkBranches = self.remoteBranches if self.isSyncAll() else set(self.remoteBranches.keys()).intersection(self.branches)
+
+        localBranches = self.git.getLocalBranches()
+        remoteBranches = self.git.getRemoteBranches(self.remoteName)
+
+        checkBranches = remoteBranches if self.isEmpty() else set(remoteBranches.keys()).intersection(self.branches)
         for branch in checkBranches:
             if not(branch in localBranches):
                 branches[branch] = True
@@ -75,9 +71,6 @@ class GitOptions:
             elif self.remoteBranches[branch] != self.localBranches[branch]:
                 branches[branch] = False
         return branches
-    
-    def actualTags(self):
-        return self.tags.intersection(set(self.remoteTags.keys()).union(set(self.localTags.keys())))
     
     def tagsToPull(self):
         tags = {}
@@ -100,20 +93,3 @@ class GitOptions:
             elif self.remoteTags[tag] != self.localTags[tag]:
                 tags[tag] = False
         return tags
-    
-    def setOptions(self, val):
-        self.opts = GitOptions()
-
-        self.opts.remoteName = self.remoteName()
-
-        for opt in val:
-            if is_sha1(opt):
-                self.opts.revisions.add(opt)
-            elif opt == r'notags':
-                self.opts.notags = True
-            elif opt == r'nosub':
-                self.opts.nosubmodules = True
-            elif opt == r'unrelated':
-                self.opts.unrelated = True
-            else:
-                self.opts.arguments.add(opt)

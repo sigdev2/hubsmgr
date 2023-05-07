@@ -48,10 +48,10 @@ class GitOptions:
         return (len(self.branches) <= 0) and (len(self.tags) <= 0) and (len(self.revisions) <= 0)
     
     def branchesToPull(self):
-        return self.__getItems(self.git.getRemoteBranches(self.remoteName), self.git.getLocalBranches(), self.tags)
+        return self.__getItems(self.git.getRemoteBranches(self.remoteName), self.git.getLocalBranches(), self.branches)
 
     def branchesToPush(self):
-        return self.__getItems(self.git.getLocalBranches(), self.git.getRemoteBranches(self.remoteName), self.tags)
+        return self.__getItems(self.git.getLocalBranches(), self.git.getRemoteBranches(self.remoteName), self.branches)
     
     def getTagsToPull(self):
         if self.notags:

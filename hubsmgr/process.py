@@ -4,7 +4,7 @@
 import utility.pathutils
 import utility.archiveutils
 from synccommands import SyncCommands
-from providers.git import Git
+from providers.gitprovider import GitProvider
 from providers.pythonsync import PythonSync
 from providers.archiveproxy import ArchiveProxy
 from providers.managedproxy import ManagedProxy
@@ -52,7 +52,7 @@ class ProjectProcessor:
         if name == r'pysync':
             provider = PythonSync(path, self.__out)
         elif name == r'git':
-            provider = Git(path, self.__out)
+            provider = GitProvider(path, self.__out)
         if provider != None:
             if utility.archiveutils.isSupportedArchive(path):
                 provider = ArchiveProxy(provider)

@@ -2,48 +2,51 @@
 # -*- coding: utf-8 -*-
 
 from providers.provider import Provider
-import os
-import re
+from gitutils import git, gitoptions
+from utility import pathutils
 
-GIT_SIGN = r'.git'
+class GitProvider(Provider):
+    __slots__ = [r'path', r'out', r'git']
 
-class Git(Provider):
-    def __init__(self, hub, name, url, root, out = None):
-        super(Git, self).__init__(hub, name, url, root, out)
-
-    def isExist(self):
-        gitSignPath = self.path() / GIT_SIGN
-        return Provider.isExist(self) and gitSignPath.exists() and gitSignPath.is_dir()
+    def __init__(self, path, out = None):
+        self.git = git.Git(path, self.run, out)
+        super(GitProvider, self).__init__(path, out)
     
-    def updateRemotes(self):
-        remoteName = self.remoteName()
-        if not(self.__hasRemote(remoteName)):
-            ec = self.run(r'git remote add ' + remoteName + r' ' + str(self.url), self.out, self.path())
-            if ec != 0:
-                return ec
-        elif self.__getRemoteUrl(remoteName) != str(self.url):
-            ec = self.run(r'git remote set-url ' + remoteName + r' ' + str(self.url), self.out, self.path())
-            if ec != 0:
-                return ec
-        
-        return 0
+    def isPullSupport(self):
+        return True
+    
+    def isPushSupport(self):
+        return True
+    
+    def isCommitSupport(self):
+        currentBranch = self.git.getCurrentBranch()
+        return len(currentBranch) > 0 and self.git.getRevision(currentBranch) == self.git.getRevision(r'HEAD')
+    
+    def isCloneSupport(self):
+        return True
+    
+    def isValid(self):
+        return not(pathutils.isUrl(self.path))
+    
+    def isExist(self):
+        return self.git.isRepository(False) or self.git.isRepository(True)
+    
+    def addRemotes(self, remoteName, remotes):
+        pass
+    
+    def commit(self, message, addAll):
+        if not(self.git.hasChanges()):
+            return 0
+        return self.git.commit(message, addAll)
 
-    def setOptions(self, val):
-        self.opts = GitOptions()
-
-        self.opts.remoteName = self.remoteName()
-
-        for opt in val:
-            if is_sha1(opt):
-                self.opts.revisions.add(opt)
-            elif opt == r'notags':
-                self.opts.notags = True
-            elif opt == r'nosub':
-                self.opts.nosubmodules = True
-            elif opt == r'unrelated':
-                self.opts.unrelated = True
-            else:
-                self.opts.arguments.add(opt)
+    def pull(self, remote, opts):
+        return -1
+    
+    def push(self, remote, opts):
+        return -1
+    
+    def clone(self, remote, opts):
+        return -1
 
     def commit(self, message, addAll):
         self.__updateChanges()

@@ -48,48 +48,26 @@ class GitOptions:
         return (len(self.branches) <= 0) and (len(self.tags) <= 0) and (len(self.revisions) <= 0)
     
     def branchesToPull(self):
-        branches = {}
-
-        localBranches = self.git.getLocalBranches()
-        remoteBranches = self.git.getRemoteBranches(self.remoteName)
-
-        checkBranches = remoteBranches if self.isEmpty() else set(remoteBranches.keys()).intersection(self.branches)
-        for branch in checkBranches:
-            if not(branch in localBranches):
-                branches[branch] = True
-            elif self.remoteBranches[branch] != self.localBranches[branch]:
-                branches[branch] = False
-        return branches
+        return self.__getItems(self.git.getRemoteBranches(self.remoteName), self.git.getLocalBranches(), self.tags)
 
     def branchesToPush(self):
-        branches = {}
-        remoteBranches = self.remoteBranches.keys()
-        checkBranches = self.localBranches if self.isSyncAll() else set(self.localBranches.keys()).intersection(self.branches)
-        for branch in checkBranches:
-            if not(branch in remoteBranches):
-                branches[branch] = True
-            elif self.remoteBranches[branch] != self.localBranches[branch]:
-                branches[branch] = False
-        return branches
+        return self.__getItems(self.git.getLocalBranches(), self.git.getRemoteBranches(self.remoteName), self.tags)
     
-    def tagsToPull(self):
-        tags = {}
-        localTags = self.localTags.keys()
-        checkTags = self.remoteTags if self.isSyncAll() else set(self.remoteTags.keys()).intersection(self.tags)
-        for tag in checkTags:
-            if not(tag in localTags):
-                tags[tag] = True
-            elif self.remoteTags[tag] != self.localTags[tag]:
-                tags[tag] = False
-        return tags
+    def getTagsToPull(self):
+        if self.notags:
+            return {}
+        return self.__getItems(self.git.getRemoteTags(self.remoteName), self.git.getLocalTags(), self.tags)
 
-    def tagsToPush(self):
-        tags = {}
-        remoteTags = self.remoteTags.keys()
-        checkTags = self.localTags if self.isSyncAll() else set(self.localTags.keys()).intersection(self.tags)
-        for tag in checkTags:
-            if not(tag in remoteTags):
-                tags[tag] = True
-            elif self.remoteTags[tag] != self.localTags[tag]:
-                tags[tag] = False
-        return tags
+    def getTagsToPush(self):
+        if self.notags:
+            return {}
+        return self.__getItems(self.git.getLocalTags(), self.git.getRemoteTags(self.remoteName), self.tags)
+    
+    def __getItems(self, fromItems, toItems, filter):
+        items = {}
+        checkItems = fromItems if self.isEmpty() else set(fromItems.keys()).intersection(filter)
+        for item in checkItems:
+            isNew = not(item in toItems)
+            if isNew or fromItems[item] != toItems[item]:
+                items[item] = isNew
+        return items

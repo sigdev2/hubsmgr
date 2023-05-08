@@ -32,7 +32,7 @@ class GitProvider(Provider):
         return self.git.isRepository(False) or self.git.isRepository(True)
     
     def addRemotes(self, remoteName, remotes):
-        pass
+        self.git.addRemote(remoteName)
     
     def commit(self, message, addAll):
         if not(self.git.hasChanges()):
@@ -40,69 +40,44 @@ class GitProvider(Provider):
         return self.git.commit(message, addAll)
 
     def pull(self, remote, opts):
-        return -1
-    
-    def push(self, remote, opts):
-        return -1
-    
-    def clone(self, remote, opts):
-        return -1
-
-    def commit(self, message, addAll):
-        self.__updateChanges()
-        self.__updateBranchesAndTags()
-        
-        if not(self.opts.canCommit()):
-            return 0
-
-        cmds = []
-        if addAll:
-            cmds.append(r'git add -A')
-        cmds.append(r'git commit -m "' + message + r'"')
-        return self.run(cmds, self.out, self.path())
-
-    def pull(self):
-        self.__updateBranchesAndTags()
+        opts = gitoptions.GitOptions(remote, opts, self.git)
 
         cmds = []
 
-        pullBranches = self.opts.branchesToPull()
-        for branch, isNew in pullBranches.items():
-            cmds.append(r'git fetch ' + self.opts.remoteName + r' ' + branch + (r':' + branch if isNew else r''))
-            if not(isNew):
-                cmds.append(lambda : r'git checkout ' + branch if self.__getCurrentBranch() != branch else r'')
-                cmds.append(r'git merge ' + (r'--allow-unrelated-histories ' if self.opts.unrelated else r'') + self.opts.remoteName + r'/' + branch)
+        for branch, isNew in opts.getBranchesToPull().items():
+            cmds += self.git.pull_branch_with_checkout(remote, branch, isNew, opts.unrelated, True)
         
-        if not(self.opts.notags):
-            for tag in self.opts.tagsToPull():
-                cmds.append(r'git fetch ' + self.opts.remoteName + r' ' + tag)
+        if not(opts.notags):
+            for tag in opts.getTagsToPull():
+                cmds += self.git.pull_tag(remote, tag, True)
         
         cmds.append(self.__checkoutCommands())
 
-        return self.run(cmds, self.out, self.path())
+        
+        if not(opts.nosubmodules):
+            cmds += self.git.updateSubmodules(True)
 
-    def push(self):
-        self.__updateBranchesAndTags()
+        return self.git.run(cmds)
+    
+    def push(self, remote, opts):
+        opts = gitoptions.GitOptions(remote, opts, self.git)
 
         cmds = []
 
-        pushBranches = self.opts.branchesToPush()
+        pushBranches = opts.getBranchesToPush()
         for branch in pushBranches:
-            cmds.append(r'git push ' + self.opts.remoteName + r' ' + branch + r':' + branch)
+            cmds += self.git.push(remote, branch, True)
 
-        if not(self.opts.notags):
-            pushTags = self.opts.tagsToPush()
+        if not(opts.notags):
+            pushTags = opts.tagsToPush()
             for tag in pushTags:
-                cmds.append(r'git push ' + self.opts.remoteName + r' ' + tag + r':' + tag)
+                cmds += self.git.push(remote, tag, True)
         
         if len(cmds) <= 0:
             return 0
 
-        return self.run(cmds, self.out, self.path())
-        
-    def clone(self):
-        opts = r' -o ' + self.remoteName()
-        opts += r' ' + str(self.url)
-        opts += r' .' + os.sep + self.name + os.sep
-
-        return self.run(r'git clone' + opts, self.out, self.root)
+        return self.git.run(cmds)
+    
+    def clone(self, remote, opts):
+        opts = gitoptions.GitOptions(remote, opts, self.git)
+        return self.git.clone(remote, self.path, opts.bare)

@@ -7,6 +7,7 @@ class GitOptions:
     __slots__ = [r'nosubmodules',
                  r'unrelated',
                  r'notags',
+                 r'bare',
                  r'revisions',
                  r'branches',
                  r'tags',
@@ -21,6 +22,11 @@ class GitOptions:
         remoteBranches = self.git.getRemoteBranches(self.remoteName)
         realBranches = set(localBranches.keys()).union(remoteBranches.keys())
 
+        self.notags = False
+        self.nosubmodules = False
+        self.unrelated = False
+        self.bare = False
+
         self.revisions = set()
         arguments = set()
         for opt in textOpts:
@@ -32,6 +38,8 @@ class GitOptions:
                 self.nosubmodules = True
             elif opt == r'unrelated':
                 self.unrelated = True
+            elif opt == r'bare':
+                self.bare = True
             else:
                 arguments.add(opt)
         
@@ -47,10 +55,10 @@ class GitOptions:
     def isEmpty(self):
         return (len(self.branches) <= 0) and (len(self.tags) <= 0) and (len(self.revisions) <= 0)
     
-    def branchesToPull(self):
+    def getBranchesToPull(self):
         return self.__getItems(self.git.getRemoteBranches(self.remoteName), self.git.getLocalBranches(), self.branches)
 
-    def branchesToPush(self):
+    def getBranchesToPush(self):
         return self.__getItems(self.git.getLocalBranches(), self.git.getRemoteBranches(self.remoteName), self.branches)
     
     def getTagsToPull(self):

@@ -6,20 +6,16 @@ from utility import arhive
 from utility import archiveutils
 import tempfile
 import os
+import pathlib
 import shutil
 
 class ArchiveProxy(ProviderProxy):
-    __slots__ = [r'__packed', r'__tempdir']
+    __slots__ = [r'__packed', r'__tempdir', r'__unpacked']
     
     def __init__(self, source):
+        self.__unpacked = False
         self.__tempdir = tempfile.TemporaryDirectory()
-        
         self.__packed = source
-        if self.isExist():
-            archive = arhive.Archive(self.__packed.path)
-            todo unpack only when run first operation
-            archive.unpackall(self.__tempdir)
-
         baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
         providerClass = type(baseProvider)
         super(ArchiveProxy, self).__init__(providerClass(self.__tempdir, baseProvider.out))
@@ -28,7 +24,7 @@ class ArchiveProxy(ProviderProxy):
         return False
     
     def isValid(self):
-        return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isExist() and self.source.isValid()
+        return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isValid()
     
     def isExist(self):
         return os.path.exists(self.__packed.path) and os.path.is_file(self.__packed.path)
@@ -37,14 +33,14 @@ class ArchiveProxy(ProviderProxy):
         return -1
 
     def pull(self, remote, opts):
-        todo chack changes by data
+        self.__unpack()
         e = super(ArchiveProxy, self).pull(remote, opts)
         if e != 0:
             return e
         return self.__pack()
         
     def push(self, remote, opts):
-        todo chack changes by data
+        self.__unpack()
         e = super(ArchiveProxy, self).push(remote, opts)
         if e != 0:
             return e
@@ -57,10 +53,24 @@ class ArchiveProxy(ProviderProxy):
         return self.__pack()
     
     def __pack(self):
+        dir = pathlib.Path(self.__tempdir)
+        dirmtime = max([dir.joinpath(root).joinpath(f).stat().st_mtime for root, _, files in os.walk(dir) for f in files])
+        archivemtime = pathlib.Path(self.__packed.path).archive.stat().st_mtime
+        if archivemtime == dirmtime:
+            return 0
+        if archivemtime > dirmtime:
+            return -1
+        
         file = tempfile.TemporaryFile()
         archive = arhive.Archive(file)
-        archive.packall(file)
+        archive.packall(self.__tempdir)
         if os.path.exists(self.__packed.path):
             os.remove(self.__packed.path)
         shutil.copy(file, self.__packed.path)
         return 0
+    
+    def __unpack(self):
+        if self.isExist() and not(self.__unpacked):
+            archive = arhive.Archive(self.__packed.path)
+            archive.unpackall(self.__tempdir)
+            self.__unpacked = True

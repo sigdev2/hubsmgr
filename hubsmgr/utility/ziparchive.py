@@ -34,7 +34,7 @@ class ZipArchive:
                         ZipArchive.addFile(archive, info, fobj)
                 for emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
                     info = ZipArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
-                    ZipArchive.addEmpyDir(archive, info)
+                    ZipArchive.addEmptyDir(archive, info)
             archive.close()
     
     @staticmethod
@@ -44,7 +44,7 @@ class ZipArchive:
     @staticmethod
     def createInfo(path):
         info = zipfile.ZipInfo(path)
-        info.filename = info.name.replace(r'\\', r'/')
+        info.filename = info.filename.replace(r'\\', r'/')
         return info
 
     @staticmethod

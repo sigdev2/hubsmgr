@@ -7,7 +7,7 @@ import os
 import functools
 
 class Git:
-    __slots__ = [r'path', r'run']
+    __slots__ = [r'path', r'out', r'run']
     
     GIT_DIR = r'.git'
     GIT_SUBDIRS = (r'hooks', r'info', r'objects', r'logs', r'refs')
@@ -25,7 +25,7 @@ class Git:
 
     @functools.cache
     def isRepository(self, bare):
-        root = pathlib.path(self.path)
+        root = pathlib.Path(self.path)
         for subdir in Git.GIT_SUBDIRS:
             if not(bare):
                 subdir = Git.GIT_DIR + os.sep + subdir
@@ -224,7 +224,7 @@ class Git:
         return self.run(cmds, self.out)
 
     def pull_tag(self, remoteName, tag, getCommands = False):
-        return self.fetch(self, remoteName, tag, getCommands)
+        return self.fetch(remoteName, tag, getCommands)
 
     def push(self, remoteName, tagOrBranch, getCommands = False):
         def cmd():

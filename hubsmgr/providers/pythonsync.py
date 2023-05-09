@@ -11,6 +11,7 @@ class PythonSync(Provider):
     __slots__ = [r'__remotes']
 
     def __init__(self, path, out = None):
+        self.__remotes = dict()
         super(PythonSync, self).__init__(path, out)
     
     def isPullSupport(self):
@@ -39,7 +40,7 @@ class PythonSync(Provider):
         if not(remote in self.__remotes):
            return -1
         for path in self.__remotes[remote]:
-            self.__comparePath(pathlib.Path(path), pathlib.Path(self.path), opts)
+            self.__comparePath(pathlib.Path(path), pathlib.Path(self.path), remote, opts)
         return 0
     
     def push(self, remote, opts):

@@ -27,7 +27,7 @@ class Provider:
         return False
     
     def isExist(self):
-        return os.path.exists(self.path) and os.path.is_dir(self.path) and (len(os.listdir(self.path)) > 0)
+        return os.path.exists(self.path) and os.path.isdir(self.path) and (len(os.listdir(self.path)) > 0)
     
     def addRemotes(self, remoteName, remotes):
         pass

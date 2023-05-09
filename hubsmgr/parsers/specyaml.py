@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from yaml import *
+import yaml
 
 class SpecYamlParser:
     __slots__ = []
 
     def parse(self, parsers, file):
-        self.__recParse(parsers, safe_load(file), r'', r'')
+        self.__recParse(parsers, yaml.safe_load(file), r'', r'')
     
     def __recParse(self, parsers, data, path, node):
         for parser in (parsers if len(path) > 0 else []):

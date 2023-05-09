@@ -27,7 +27,7 @@ class ArchiveProxy(ProviderProxy):
         return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isValid()
     
     def isExist(self):
-        return os.path.exists(self.__packed.path) and os.path.is_file(self.__packed.path)
+        return os.path.exists(self.__packed.path) and os.path.isfile(self.__packed.path)
     
     def commit(self, message, addAll):
         return -1
@@ -53,9 +53,9 @@ class ArchiveProxy(ProviderProxy):
         return self.__pack()
     
     def __pack(self):
-        dir = pathlib.Path(self.__tempdir)
-        dirmtime = max([dir.joinpath(root).joinpath(f).stat().st_mtime for root, _, files in os.walk(dir) for f in files])
-        archivemtime = pathlib.Path(self.__packed.path).archive.stat().st_mtime
+        tempdir = pathlib.Path(self.__tempdir)
+        dirmtime = max([tempdir.joinpath(root).joinpath(f).stat().st_mtime for root, _, files in os.walk(tempdir) for f in files])
+        archivemtime = pathlib.Path(self.__packed.path).stat().st_mtime
         if archivemtime == dirmtime:
             return 0
         if archivemtime > dirmtime:

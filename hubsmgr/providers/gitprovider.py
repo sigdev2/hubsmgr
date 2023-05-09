@@ -33,7 +33,7 @@ class GitProvider(Provider):
         return self.git.isRepository(False) or self.git.isRepository(True)
     
     def addRemotes(self, remoteName, remotes):
-        if not(remoteName in self.self.__remotes):
+        if not(remoteName in self.__remotes):
             self.__remotes[remoteName] = set()
         for remote in remotes:
             self.__remotes[remoteName].add(remote)

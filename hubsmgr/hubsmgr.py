@@ -14,7 +14,8 @@ from process import ProjectProcessor
 def processProjects(projects, root):
     i = 0
     logTag = r''
-    out = (lambda message : Logger.partmessage(i, len(projects), logTag, message))
+    def out(message):
+        Logger.partmessage(i, len(projects), logTag, message)
     processor = ProjectProcessor(root, out)
     for project in projects:
         processor.process(project.name, project)
@@ -23,8 +24,8 @@ def processProjects(projects, root):
 def sync(config):
     os.chdir(config.parent)
     rootPath = utility.utils.configdir(config)
-    if not(rootPath):
-        Logger.error(r'Root folder for ' + ascii(config.as_posix())) + r' is not exist'
+    if not rootPath:
+        Logger.error(r'Root folder for ' + ascii(config.as_posix()) + r' is not exist')
         return
 
     Logger.message(r'YAML', r'Parse yaml: ' + ascii(config.as_posix()))

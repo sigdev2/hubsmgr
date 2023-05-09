@@ -33,7 +33,7 @@ class TarArchive:
                         TarArchive.addFile(archive[0], info, fobj)
                 for emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
                     info = TarArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
-                    TarArchive.addEmpyDir(archive[0], info)
+                    TarArchive.addEmptyDir(archive[0], info)
             map(lambda a: a.close(), archive)
             
     @staticmethod

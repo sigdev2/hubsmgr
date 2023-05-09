@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import gitoptions
+import sha1utils
             
 class GitOptions:
     __slots__ = [r'nosubmodules',
@@ -30,7 +31,7 @@ class GitOptions:
         self.revisions = set()
         arguments = set()
         for opt in textOpts:
-            if gitoptions.is_sha1(opt):
+            if sha1utils.is_sha1(opt):
                 self.revisions.add(opt)
             elif opt == r'notags':
                 self.notags = True
@@ -47,8 +48,8 @@ class GitOptions:
         self.tags = set()
         
         if not(self.notags):
-            localTags = self.getLocalTags()
-            remoteTags = self.getRemoteTags(self.remoteName)
+            localTags = self.git.getLocalTags()
+            remoteTags = self.git.getRemoteTags(self.remoteName)
             realTags = set(localTags.keys()).union(remoteTags.keys())
             self.tags = realTags.intersection(arguments)
     
@@ -74,8 +75,8 @@ class GitOptions:
     def getAllFreeTags(self):
         if self.notags:
             return {}
-        localTags = self.getLocalTags()
-        remoteTags = self.getRemoteTags(self.remoteName)
+        localTags = self.git.getLocalTags()
+        remoteTags = self.git.getRemoteTags(self.remoteName)
         realTags = set(localTags.keys()).union(remoteTags.keys())
         freeTags = set()
         for tag in realTags:
@@ -87,14 +88,14 @@ class GitOptions:
         return freeTags
 
     def getRealTagsRevisions(self, tags):
-        localTags = self.getLocalTags()
-        remoteTags = self.getRemoteTags(self.remoteName)
+        localTags = self.git.getLocalTags()
+        remoteTags = self.git.getRemoteTags(self.remoteName)
         revisions = dict()
         for tag in tags:
             if tag in remoteTags:
                 revisions[tag] = remoteTags[tag]
             elif tag in localTags:
-                revisions[tag] = self.opts.localTags[tag]
+                revisions[tag] = localTags[tag]
         return revisions
 
     def getRealBranchesRevisions(self, branches):

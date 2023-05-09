@@ -13,10 +13,11 @@ from process import ProjectProcessor
 
 def processProjects(projects, root):
     i = 0
-    count = len(projects)
-    processor = ProjectProcessor(root, count, Logger)
+    logTag = r''
+    out = (lambda message : Logger.partmessage(i, len(projects), logTag, message))
+    processor = ProjectProcessor(root, out)
     for project in projects:
-        processor.process(project, i)
+        processor.process(project.name, project)
         i += 1
 
 def sync(config):

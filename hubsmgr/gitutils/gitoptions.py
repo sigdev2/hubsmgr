@@ -71,6 +71,49 @@ class GitOptions:
             return {}
         return self.__getItems(self.git.getLocalTags(), self.git.getRemoteTags(self.remoteName), self.tags)
     
+    def getAllFreeTags(self):
+        if self.notags:
+            return {}
+        localTags = self.getLocalTags()
+        remoteTags = self.getRemoteTags(self.remoteName)
+        realTags = set(localTags.keys()).union(remoteTags.keys())
+        freeTags = set()
+        for tag in realTags:
+            tagType = self.git.getObjectType(tag)
+            if tagType == r'tag':
+                tagType = self.git.getTagType(tag)
+            if tagType != r'commit':
+                freeTags.add(tag)
+        return freeTags
+
+    def getRealTagsRevisions(self, tags):
+        localTags = self.getLocalTags()
+        remoteTags = self.getRemoteTags(self.remoteName)
+        revisions = dict()
+        for tag in tags:
+            if tag in remoteTags:
+                revisions[tag] = remoteTags[tag]
+            elif tag in localTags:
+                revisions[tag] = self.opts.localTags[tag]
+        return revisions
+
+    def getRealBranchesRevisions(self, branches):
+        localBranches = self.git.getLocalBranches()
+        remoteBranches = self.git.getRemoteBranches(self.remoteName)
+        revisions = dict()
+        for branch in branches:
+            if branch in remoteBranches:
+                revisions[branch] = remoteBranches[branch]
+            elif branch in localBranches:
+                revisions[branch] = localBranches[branch]
+        return revisions
+    
+    def getRealBranchRevision(self, branch):
+        revisions = self.getRealBranchesRevisions([branch])
+        if len(revisions) <= 0:
+            return r''
+        return revisions[branch]
+    
     def __getItems(self, fromItems, toItems, filter):
         items = {}
         checkItems = fromItems if self.isEmpty() else set(fromItems.keys()).intersection(filter)

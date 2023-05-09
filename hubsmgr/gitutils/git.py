@@ -169,10 +169,9 @@ class Git:
     
     def addRemote(self, remoteName, url):
         def clearCahche():
-            self.hasRemote.cache_clear()
-            self.getRemoteUrl.cache_clear()
-            self.getRemoteTags.cache_clear()
-            self.getRemoteBranches.cache_clear()
+            self.clearRemotesCache()
+            self.clearRemotesObjectsCache()
+            self.clearObjectsCache()
         if not(self.hasRemote(remoteName)):
             ec = self.run(r'git remote add ' + remoteName + r' ' + url, self.out)
             if ec != 0:

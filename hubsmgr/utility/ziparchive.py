@@ -6,14 +6,14 @@ import time
 import os
 
 class ZipArchive:
-    __slots__ = (r'__path')
+    __slots__ = (r'__path',)
 
     def __init__(self, path):
         self.__path = path
-    
+
     def unpackall(self, toPath):
         archive = ZipArchive.open(self.__path, r'r')
-        if archive != None:
+        if not archive is None:
             for f in archive.infolist():
                 name, date_time = f.filename, f.date_time
                 name = os.path.join(toPath, name)
@@ -25,7 +25,7 @@ class ZipArchive:
 
     def packall(self, fromPath):
         archive = ZipArchive.open(self.__path, r'w')
-        if archive != None:
+        if not archive is None:
             for root, dirs, files in os.walk(fromPath):
                 for file in files:
                     in_fname = os.path.join(root, file)
@@ -36,7 +36,7 @@ class ZipArchive:
                     info = ZipArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
                     ZipArchive.addEmptyDir(archive, info)
             archive.close()
-    
+
     @staticmethod
     def isSupported(path):
         return path.endswith(r'zip')

@@ -28,7 +28,6 @@ else:
         BlackOnWhite = r''
         End = r''
 
-
 class Logger:
     @staticmethod
     def formatPos(index, count):
@@ -36,23 +35,28 @@ class Logger:
 
     @staticmethod
     def partstart(index, count, text):
-        print(Colors.BlackOnWhite + Logger.formatPos(index, count) + r' [START]' + Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
-        
+        print(Colors.BlackOnWhite + Logger.formatPos(index, count) + r' [START]' +
+              Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
+
     @staticmethod
     def partend(index, count, text):
-        print(Colors.BlackOnWhite + Logger.formatPos(index, count) + r' [END]' + Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
-        
+        print(Colors.BlackOnWhite + Logger.formatPos(index, count) + r' [END]' +
+              Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
+
     @staticmethod
     def start(text):
-        print(Colors.BlackOnWhite + r'[START]' + Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
+        print(Colors.BlackOnWhite + r'[START]' +
+              Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
 
     @staticmethod
     def end(text):
-        print(Colors.BlackOnWhite + r'[END]' + Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
-    
+        print(Colors.BlackOnWhite + r'[END]' +
+              Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
+
     @staticmethod
-    def headerStart(type, text):
-        print(Colors.Yellow + r'[' + type + r']' + Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
+    def headerStart(headertype, text):
+        print(Colors.Yellow + r'[' + headertype + r']' +
+              Colors.End + r' ' + Colors.LightBlue + text + Colors.End)
 
     @staticmethod
     def headerEnd(text):
@@ -67,23 +71,26 @@ class Logger:
         print(Colors.Yellow + r'[WARN]' + Colors.End + r' ' + Colors.Red + text + Colors.End)
 
     @staticmethod
-    def message(type, message):
-        print(Colors.Yellow + r'[' + type + r']' + Colors.End + r' ' + message)
-    
-    @staticmethod
-    def partmessage(index, count, type, message):
-        print(Colors.Yellow + Logger.formatPos(index, count) + r' [' + type + r']' + Colors.End + r' ' + message)
+    def message(msgtype, message):
+        print(Colors.Yellow + r'[' + msgtype + r']' + Colors.End + r' ' + message)
 
     @staticmethod
-    def operation(type, message, done):
-        Logger.message(type, message + r' ' +
-            (Colors.LightGreen + r'[DONE]' + Colors.End if done else Colors.LightRed + r'[FAILED]' + Colors.End))
+    def partmessage(index, count, msgtype, message):
+        print(Colors.Yellow + Logger.formatPos(index, count) + r' [' + msgtype + r']' +
+              Colors.End + r' ' + message)
 
     @staticmethod
-    def partoperation(index, count, type, message, done):
-        Logger.partmessage(index, count, type, message + r' ' +
-            (Colors.LightGreen + r'[DONE]' + Colors.End if done else Colors.LightRed + r'[FAILED]' + Colors.End))
-    
+    def operation(optype, message, done):
+        Logger.message(optype, message + r' ' + Colors.LightGreen + r'[DONE]' +
+                       Colors.End if done else Colors.LightRed + r'[FAILED]' + Colors.End)
+
     @staticmethod
-    def item(type, source, name, value):
-        Logger.message(type, source + r': ' + Colors.LightBlue + name + Colors.End + r' = ' + Colors.LightGreen + value + Colors.End)
+    def partoperation(index, count, optype, message, done):
+        Logger.partmessage(index, count, optype, message + r' ' + Colors.LightGreen + r'[DONE]' +
+                           Colors.End if done else Colors.LightRed + r'[FAILED]' + Colors.End)
+
+    @staticmethod
+    def item(itemtype, source, name, value):
+        Logger.message(itemtype, source + r': ' +
+                       Colors.LightBlue + name + Colors.End +
+                       r' = ' + Colors.LightGreen + value + Colors.End)

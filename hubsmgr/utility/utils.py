@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
+
 from parsers.specyaml import SpecYamlParser
 from parsers.shortsparser import ShortsParser
 from parsers.projectsparser import ProjectsParser
@@ -17,9 +22,9 @@ def yamlpaths(path):
 
 def configdir(config):
     rootPath = config.parent / config.stem
-    if not(rootPath.exists()) or not(rootPath.is_dir()):
+    if not rootPath.exists() or not rootPath.is_dir():
         rootPath.mkdir()
-    if not(rootPath.exists()):
+    if not rootPath.exists():
         return False
     return rootPath
 

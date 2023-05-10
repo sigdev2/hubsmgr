@@ -6,22 +6,22 @@ import utility.archiveutils
 #todo: support iso and isz
 
 class Archive:
-    __slots__ = (r'__archive')
+    __slots__ = (r'__archive',)
 
     def __init__(self, path):
         archiveClass = utility.archiveutils.getFormatClass(path)
-        if archiveClass == None:
+        if archiveClass is None:
             self.__archive = None
         else:
             self.__archive = archiveClass(path)
-    
+
     def isValid(self):
-        return self.__archive != None
-    
+        return not self.__archive is None
+
     def unpackall(self, toPath):
-        if self.__archive != None:
+        if not self.__archive is None:
             self.__archive.unpackall(toPath)
-    
+
     def packall(self, fromPath):
-        if self.__archive != None:
+        if not self.__archive is None:
             self.__archive.packall(fromPath)

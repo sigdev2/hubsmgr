@@ -14,7 +14,7 @@ class HubsParser:
     HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_-]+')
 
     def __init__(self):
-        self.hubs = dict()
+        self.hubs = {}
 
     def check(self, path):
         return HubsParser.HUBS_CHECK_RX.match(path)

@@ -10,7 +10,7 @@ class Provider:
     def __init__(self, path, out = None):
         self.path = path
         self.out = out
-        self.remotes = dict()
+        self.remotes = {}
 
     def isPullSupport(self):
         return False

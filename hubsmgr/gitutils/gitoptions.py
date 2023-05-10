@@ -93,7 +93,7 @@ class GitOptions:
     def getRealTagsRevisions(self, tags):
         localTags = self.git.getLocalTags()
         remoteTags = self.git.getRemoteTags(self.remoteName)
-        revisions = dict()
+        revisions = {}
         for tag in tags:
             if tag in remoteTags:
                 revisions[tag] = remoteTags[tag]
@@ -104,7 +104,7 @@ class GitOptions:
     def getRealBranchesRevisions(self, branches):
         localBranches = self.git.getLocalBranches()
         remoteBranches = self.git.getRemoteBranches(self.remoteName)
-        revisions = dict()
+        revisions = {}
         for branch in branches:
             if branch in remoteBranches:
                 revisions[branch] = remoteBranches[branch]

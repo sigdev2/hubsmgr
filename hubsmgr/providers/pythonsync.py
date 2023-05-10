@@ -14,7 +14,7 @@ from utility import pathutils
 
 class PythonSync(Provider):
     def __init__(self, path, out = None):
-        self.__remotes = dict()
+        self.__remotes = {}
         super(PythonSync, self).__init__(path, out)
 
     def isPullSupport(self):

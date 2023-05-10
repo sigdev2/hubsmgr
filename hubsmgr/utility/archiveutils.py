@@ -7,7 +7,7 @@ from ziparchive import ZipArchive
 def getFormatClass(path):
     if ZipArchive.isSupported(path):
         return ZipArchive
-    elif TarArchive.isSupported(path):
+    if TarArchive.isSupported(path):
         return TarArchive
     return None
 

@@ -15,7 +15,7 @@ class ManagedProxy(ProviderProxy):
     __slots__ = (r'__managed',)
 
     def __init__(self, source):
-        self.__managed = dict()
+        self.__managed = {}
         super(ManagedProxy, self).__init__(source)
 
     def isPullSupport(self):

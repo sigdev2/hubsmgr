@@ -10,7 +10,7 @@ def parseSet(item):
     return set()
 
 def parseKeywords(args, keywords, residue):
-    parameters = dict()
+    parameters = {}
     for part in keywords:
         finded = args.intersection(keywords[part])
         if len(finded) != 0:

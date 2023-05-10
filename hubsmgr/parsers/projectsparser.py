@@ -13,7 +13,7 @@ class ProjectsParser:
     PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-]+')
 
     def __init__(self, shorts, hubs):
-        self.projects = dict()
+        self.projects = {}
         self.shorts = shorts
         self.hubs = hubs
 

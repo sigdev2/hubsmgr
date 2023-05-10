@@ -24,9 +24,10 @@ def generateFullPath(path, target):
 
 def isUrl(path):
     match = URL_RX.search(path)
-    if not match is None:
-        protocol = match.group(1)
-        return protocol != r'file' and protocol != r'windrives'
+    if match is None:
+        return False
+    protocol = match.group(1)
+    return not protocol in (r'file', r'windrives')
 
 def isChildPathOrSame(path, root):
     return path == root or pathlib.Path(path).is_relative_to(root)
@@ -53,7 +54,7 @@ def unpackSyncPaths(paths, target, relative):
                     absPath = os.path.abspath(subpath)
                     if not isChildPathOrSame(absPath, relative) and os.path.exists(absPath):
                         out.add(absPath)
-            elif protocol == r'.' or protocol == r'..':
+            elif protocol in (r'.', r'..'):
                 absPath = os.path.abspath(path)
                 if not isChildPathOrSame(absPath, relative) and os.path.exists(absPath):
                     out.add(absPath)

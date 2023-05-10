@@ -24,23 +24,23 @@ class SyncCommands:
     __slots__ = (r'__order', r'__commands')
 
     def __init__(self, commands):
-        self.__order = tuple(list() for _ in range(commands))
+        self.__order = tuple([] for _ in range(commands))
         self.__commands = commands
 
     def create(self, permissions, value):
         return SyncObject(permissions, value, self.__commands)
 
     def add(self, obj):
-        for i, obj in enumerate(self.__order):
+        for i, objs in enumerate(self.__order):
             if obj.check(i):
-                obj.append(obj)
+                objs.append(obj)
 
     def clear(self):
-        self.__order = tuple(list() for _ in range(self.__commands))
+        self.__order = tuple([] for _ in range(self.__commands))
 
     def exec(self, arguments):
-        for i, objects in enumerate(self.__order):
-            for obj in objects:
+        for i, objs in enumerate(self.__order):
+            for obj in objs:
                 if obj.exec(i, arguments) == -1:
                     self.clear()
                     return -1

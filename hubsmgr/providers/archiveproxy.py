@@ -33,7 +33,7 @@ class ArchiveProxy(ProviderProxy):
     def isExist(self):
         return os.path.exists(self.__packed.path) and os.path.isfile(self.__packed.path)
 
-    def commit(self, message, addAll):
+    def commit(self, message, addAll): # pylint: disable=unused-argument
         return -1
 
     def pull(self, remote, opts):

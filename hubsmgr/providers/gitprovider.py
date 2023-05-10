@@ -1,43 +1,48 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from providers.provider import Provider
+import sys
+import os
+from provider import Provider
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
+
 from gitutils import git, gitoptions
 from utility import pathutils
 
 class GitProvider(Provider):
-    __slots__ = [r'path', r'out', r'git', r'__remotes']
+    __slots__ = (r'path', r'out', r'git', r'__remotes')
 
     def __init__(self, path, out = None):
         self.__remotes = dict()
         self.git = git.Git(path, self.run, out)
         super(GitProvider, self).__init__(path, out)
-    
+
     def isPullSupport(self):
         return True
-    
+
     def isPushSupport(self):
         return True
-    
+
     def isCommitSupport(self):
         currentBranch = self.git.getCurrentBranch()
         return len(currentBranch) > 0 and self.git.getRevision(currentBranch) == self.git.getRevision(r'HEAD')
-    
+
     def isCloneSupport(self):
         return True
-    
+
     def isValid(self):
         return not(pathutils.isUrl(self.path))
-    
+
     def isExist(self):
         return self.git.isRepository(False) or self.git.isRepository(True)
-    
+
     def addRemotes(self, remoteName, remotes):
         if not(remoteName in self.__remotes):
             self.__remotes[remoteName] = set()
         for remote in remotes:
             self.__remotes[remoteName].add(remote)
-    
+
     def commit(self, message, addAll):
         if not(self.git.hasChanges()):
             return 0
@@ -62,7 +67,7 @@ class GitProvider(Provider):
             # fetch and merge branches
             for branch, isNew in opts.getBranchesToPull().items():
                 cmds += self.git.pull_branch_with_checkout(remote, branch, isNew, opts.unrelated, True)
-            
+
             # fetch tags
             if not(opts.notags):
                 for tag in opts.getTagsToPull():
@@ -79,7 +84,7 @@ class GitProvider(Provider):
             # restore revision
             def restoreRevision():
                 newRevision = self.git.getRevision(r'HEAD')
-                
+
                 # restore strict specified revision
                 if len(opts.revisions) > 0:
                     checkoutRevision = storedRevision
@@ -88,7 +93,7 @@ class GitProvider(Provider):
                     if newRevision != checkoutRevision:
                         return self.git.checkout(remote, checkoutRevision, True)
                     return r''
-                
+
                 # restore strict specified tag
                 if not(opts.notags):
                     strictTags = opts.tags.difference(storedFreeTags)
@@ -111,7 +116,7 @@ class GitProvider(Provider):
                     if (checkoutRevision == None) or (newRevision != checkoutRevision):
                         return self.git.checkout(remote, branch, True)
                     return r''
-                
+
                 # restore last revision
                 if newRevision != storedRevision:
                     if len(storedBranch) > 0 and storedIsBranchHead:
@@ -129,11 +134,11 @@ class GitProvider(Provider):
             if not(opts.nosubmodules):
                 cmds += self.git.updateSubmodules(True)
 
-            e = self.git.run(cmds)
+            e = self.git.run(cmds, self.out)
             if e != 0:
                 return e
         return 0
-    
+
     def push(self, remote, opts):
         for url in self.__remotes:
             self.git.addRemote(remote, url)
@@ -149,13 +154,13 @@ class GitProvider(Provider):
                 pushTags = opts.getTagsToPush()
                 for tag in pushTags:
                     cmds += self.git.push(remote, tag, True)
-            
+
             if len(cmds) > 0:
-                e = self.git.run(cmds)
+                e = self.git.run(cmds, self.out)
                 if e != 0:
                     return e
         return 0
-    
+
     def clone(self, remote, opts):
         for url in self.__remotes:
             self.git.addRemote(remote, url)

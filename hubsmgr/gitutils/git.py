@@ -5,12 +5,13 @@ import re
 import pathlib
 import os
 import sys
-sys.path.append(os.path.abspath(sys.path[0] + r'/../'))
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
 
 from utility.memoized_method import weak_lru
 
 class Git:
-    __slots__ = [r'path', r'out', r'run']
+    __slots__ = (r'__path', r'__out', r'run')
 
     GIT_DIR = r'.git'
     GIT_SUBDIRS = (r'hooks', r'info', r'objects', r'logs', r'refs')
@@ -20,16 +21,16 @@ class Git:
     REMOTE_TAG_RX = re.compile(r'([^\s]+)\s*refs/tags/([^\s]+)')
 
     def __init__(self, path, run, out):
-        self.path = path
-        self.out = out
+        self.__path = path
+        self.__out = out
         self.run = lambda cmd, callback, cd = None: \
-            run(cmd, callback, self.path if cd is None else cd)
+            run(cmd, callback, self.__path if cd is None else cd)
 
     # path
 
     @weak_lru(maxsize=None)
     def isRepository(self, bare):
-        root = pathlib.Path(self.path)
+        root = pathlib.Path(self.__path)
         for subdir in Git.GIT_SUBDIRS:
             if not bare:
                 subdir = Git.GIT_DIR + os.sep + subdir
@@ -177,12 +178,12 @@ class Git:
             self.clearRemotesObjectsCache()
             self.clearObjectsCache()
         if not self.hasRemote(remoteName):
-            ec = self.run(r'git remote add ' + remoteName + r' ' + url, self.out)
+            ec = self.run(r'git remote add ' + remoteName + r' ' + url, self.__out)
             if ec != 0:
                 return ec
             clearCahche()
         elif self.getRemoteUrl(remoteName) != url:
-            ec = self.run(r'git remote set-url ' + remoteName + r' ' + url, self.out)
+            ec = self.run(r'git remote set-url ' + remoteName + r' ' + url, self.__out)
             if ec != 0:
                 return ec
             clearCahche()
@@ -197,7 +198,7 @@ class Git:
             return r'git checkout ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out)
+        return self.run(cmd, self.__out)
 
     def fetch(self, remoteName, tagOrBranchOrRevision, getCommands = False):
         def cmd():
@@ -206,7 +207,7 @@ class Git:
             return r'git fetch ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out)
+        return self.run(cmd, self.__out)
 
     def merge(self, remoteName, branch, unrelated, getCommands = False):
         def cmd():
@@ -217,7 +218,7 @@ class Git:
                    remoteName + r'/' + branch
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out)
+        return self.run(cmd, self.__out)
 
     def pull_branch_with_checkout(self, remoteName, branch, isNew, unrelated, getCommands = False):
         cmds = [self.fetch(remoteName, branch + (r':' + branch if isNew else r''), True)[0]]
@@ -228,7 +229,7 @@ class Git:
             cmds.append(self.merge(remoteName, branch, unrelated, True)[0])
         if getCommands:
             return cmds
-        return self.run(cmds, self.out)
+        return self.run(cmds, self.__out)
 
     def pull_tag(self, remoteName, tag, getCommands = False):
         return self.fetch(remoteName, tag, getCommands)
@@ -240,10 +241,10 @@ class Git:
             return r'git push ' + remoteName + r' ' + tagOrBranch + r':' + tagOrBranch
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out)
+        return self.run(cmd, self.__out)
 
     def clone(self, remoteName, url, bare, getCommands = False):
-        p = pathlib.Path(self.path)
+        p = pathlib.Path(self.__path)
         name = p.parts[-1]
         opts = r'--bare' if bare else r''
         opts += r' -o ' + remoteName
@@ -255,7 +256,7 @@ class Git:
             return r'git clone' + opts
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out, p.parent)
+        return self.run(cmd, self.__out, p.parent)
 
     def commit(self, message, addAll, getCommands = False):
         cmds = []
@@ -274,7 +275,7 @@ class Git:
         cmds.append(cmdCommit)
         if getCommands:
             return cmds
-        return self.run(cmds, self.out)
+        return self.run(cmds, self.__out)
 
     def updateSubmodules(self, getCommands = False):
         def cmd():
@@ -282,7 +283,7 @@ class Git:
             return r'git submodule update --init --recursive --remote'
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.out)
+        return self.run(cmd, self.__out)
 
     # cache cleaners
 

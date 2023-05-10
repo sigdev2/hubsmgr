@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import gitoptions
 import sha1utils
-            
+
 class GitOptions:
-    __slots__ = [r'nosubmodules',
+    __slots__ = (r'nosubmodules',
                  r'unrelated',
                  r'notags',
                  r'bare',
@@ -13,8 +12,8 @@ class GitOptions:
                  r'branches',
                  r'tags',
                  r'git',
-                 r'remoteName']
-    
+                 r'remoteName')
+
     def __init__(self, remoteName, textOpts, git):
         self.git = git
         self.remoteName = remoteName
@@ -43,35 +42,39 @@ class GitOptions:
                 self.bare = True
             else:
                 arguments.add(opt)
-        
+
         self.branches = realBranches.intersection(arguments)
         self.tags = set()
-        
-        if not(self.notags):
+
+        if not self.notags:
             localTags = self.git.getLocalTags()
             remoteTags = self.git.getRemoteTags(self.remoteName)
             realTags = set(localTags.keys()).union(remoteTags.keys())
             self.tags = realTags.intersection(arguments)
-    
+
     def isEmpty(self):
         return (len(self.branches) <= 0) and (len(self.tags) <= 0) and (len(self.revisions) <= 0)
-    
+
     def getBranchesToPull(self):
-        return self.__getItems(self.git.getRemoteBranches(self.remoteName), self.git.getLocalBranches(), self.branches)
+        return self.__getItems(self.git.getRemoteBranches(self.remoteName),
+                               self.git.getLocalBranches(), self.branches)
 
     def getBranchesToPush(self):
-        return self.__getItems(self.git.getLocalBranches(), self.git.getRemoteBranches(self.remoteName), self.branches)
-    
+        return self.__getItems(self.git.getLocalBranches(),
+                               self.git.getRemoteBranches(self.remoteName), self.branches)
+
     def getTagsToPull(self):
         if self.notags:
             return {}
-        return self.__getItems(self.git.getRemoteTags(self.remoteName), self.git.getLocalTags(), self.tags)
+        return self.__getItems(self.git.getRemoteTags(self.remoteName),
+                               self.git.getLocalTags(), self.tags)
 
     def getTagsToPush(self):
         if self.notags:
             return {}
-        return self.__getItems(self.git.getLocalTags(), self.git.getRemoteTags(self.remoteName), self.tags)
-    
+        return self.__getItems(self.git.getLocalTags(),
+                               self.git.getRemoteTags(self.remoteName), self.tags)
+
     def getAllFreeTags(self):
         if self.notags:
             return {}
@@ -108,18 +111,20 @@ class GitOptions:
             elif branch in localBranches:
                 revisions[branch] = localBranches[branch]
         return revisions
-    
+
     def getRealBranchRevision(self, branch):
         revisions = self.getRealBranchesRevisions([branch])
         if len(revisions) <= 0:
             return r''
         return revisions[branch]
-    
-    def __getItems(self, fromItems, toItems, filter):
+
+    def __getItems(self, fromItems, toItems, filterItems):
         items = {}
-        checkItems = fromItems if self.isEmpty() else set(fromItems.keys()).intersection(filter)
+        checkItems = fromItems \
+                     if self.isEmpty() \
+                     else set(fromItems.keys()).intersection(filterItems)
         for item in checkItems:
-            isNew = not(item in toItems)
+            isNew = not item in toItems
             if isNew or fromItems[item] != toItems[item]:
                 items[item] = isNew
         return items

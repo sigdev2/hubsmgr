@@ -6,7 +6,7 @@ import utility.archiveutils
 #todo: support iso and isz
 
 class Archive:
-    __slots__ = [r'__archive']
+    __slots__ = (r'__archive')
 
     def __init__(self, path):
         archiveClass = utility.archiveutils.getFormatClass(path)

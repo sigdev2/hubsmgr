@@ -6,9 +6,9 @@ import lzma
 import os
 
 class TarArchive:
-    __slots__ = [r'__path']
+    __slots__ = (r'__path')
 
-    ARCHIVE_FORMATS = [r'.tar', r'.tar.gz', r'.tgz', r'.tar.bz2', r'.tar.bzip2', r'.tbz2', r'.tbzip2', r'.tar.lzma', r'.tar.xz', r'.txz', r'.tlzma', r'.iso', r'.isz']
+    ARCHIVE_FORMATS = (r'.tar', r'.tar.gz', r'.tgz', r'.tar.bz2', r'.tar.bzip2', r'.tbz2', r'.tbzip2', r'.tar.lzma', r'.tar.xz', r'.txz', r'.tlzma', r'.iso', r'.isz')
 
     def __init__(self, path):
         self.__path = path

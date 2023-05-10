@@ -6,7 +6,7 @@ import time
 import os
 
 class ZipArchive:
-    __slots__ = [r'__path']
+    __slots__ = (r'__path')
 
     def __init__(self, path):
         self.__path = path

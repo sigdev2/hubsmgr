@@ -1,12 +1,12 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import parserutils
 import re
+import parserutils
 from parseitem import ParseItem
 
 class HubsParser:
-    __slots__ = [r'hubs']
+    __slots__ = (r'hubs')
 
     HUBS_KETWORDS = { r'providers': [r'git', r'pysync'],
                       r'options': [r'pull', r'push', r'freeze', r'managed'] }

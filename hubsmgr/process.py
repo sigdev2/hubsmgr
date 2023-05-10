@@ -15,7 +15,7 @@ def getPulPushOptions(opts):
     return (hasPull or not hasPush), (hasPush or not hasPull)
 
 class ProjectProcessor:
-    __slots__ = [r'__root', r'__out']
+    __slots__ = (r'__root', r'__out')
 
     SYNC_COMMANDS = SyncCommands([lambda pair, opts: \
                                   pair[1].clone(pair[0], opts) if not(pair[1].isExist()) else None,

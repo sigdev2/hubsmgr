@@ -6,7 +6,7 @@ from archiveproxy import ArchiveProxy
 import utility.archiveutils
 
 class ManagedProxy(ProviderProxy):
-    __slots__ = [r'__managed']
+    __slots__ = (r'__managed')
     
     def __init__(self, source):
         self.__managed = dict()

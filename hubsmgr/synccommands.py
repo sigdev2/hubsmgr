@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 class SyncObject:
-    __slots__ = [r'__permissions', r'__value', r'__commands']
+    __slots__ = (r'__permissions', r'__value', r'__commands')
 
     def __init__(self, permissions, value, commands):
         self.__permissions = permissions
@@ -21,7 +21,7 @@ class SyncObject:
 
 
 class SyncCommands:
-    __slots__ = [r'__order', r'__commands']
+    __slots__ = (r'__order', r'__commands')
 
     def __init__(self, commands):
         self.__order = tuple(list() for _ in range(commands))

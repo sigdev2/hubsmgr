@@ -5,7 +5,7 @@ import subprocess
 import os
 
 class Provider:
-    __slots__ = [r'path', r'out']
+    __slots__ = (r'path', r'out')
 
     def __init__(self, path, out = None):
         self.path = path

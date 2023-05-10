@@ -5,43 +5,49 @@ import subprocess
 import os
 
 class Provider:
-    __slots__ = (r'path', r'out')
+    __slots__ = (r'path', r'out', r'remotes')
 
     def __init__(self, path, out = None):
         self.path = path
         self.out = out
-    
+        self.remotes = dict()
+
     def isPullSupport(self):
         return False
-    
+
     def isPushSupport(self):
         return False
-    
+
     def isCommitSupport(self):
         return False
-    
+
     def isCloneSupport(self):
         return False
-    
+
     def isValid(self):
         return False
-    
+
     def isExist(self):
-        return os.path.exists(self.path) and os.path.isdir(self.path) and (len(os.listdir(self.path)) > 0)
-    
+        return os.path.exists(self.path) and \
+               os.path.isdir(self.path) and \
+               len(os.listdir(self.path)) > 0
+
     def addRemotes(self, remoteName, remotes):
-        pass
-    
-    def commit(self, message, addAll):
+        if not remoteName in self.remotes:
+            self.remotes[remoteName] = set()
+        for remote in remotes:
+            self.remotes[remoteName].add(remote)
+
+    def commit(self, message, addAll): # pylint: disable=unused-argument
         return -1
 
-    def pull(self, remote, opts):
+    def pull(self, remote, opts): # pylint: disable=unused-argument
         return -1
-    
-    def push(self, remote, opts):
+
+    def push(self, remote, opts): # pylint: disable=unused-argument
         return -1
-    
-    def clone(self, remote, opts):
+
+    def clone(self, remote, opts): # pylint: disable=unused-argument
         return -1
 
     def run(self, cmd, out, cwd):
@@ -63,13 +69,13 @@ class Provider:
                 errors=r'replace'
             )
 
-            if out == None:
+            if out is None:
                 return process.wait()
             out(cmd, True)
             while True:
                 line = process.stdout.readline().strip()
                 exitCode = process.poll()
-                if (line == r'') and not(exitCode is None):
+                if line == r'' and not exitCode is None:
                     return exitCode
                 if line != r'':
                     out(line, False)

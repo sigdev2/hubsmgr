@@ -6,12 +6,12 @@ import sys
 import pathlib
 import shutil
 import tempfile
+
 from providerproxy import ProviderProxy
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
 
-from utility import arhive
-from utility import archiveutils
+from utility import arhive, archiveutils
 
 class ArchiveProxy(ProviderProxy):
     __slots__ = (r'__packed', r'__tempdir', r'__unpacked')

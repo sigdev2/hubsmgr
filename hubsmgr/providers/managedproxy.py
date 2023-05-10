@@ -1,13 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import os
+import sys
+
 from providerproxy import ProviderProxy
 from archiveproxy import ArchiveProxy
-import utility.archiveutils
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
+
+from utility import archiveutils
 
 class ManagedProxy(ProviderProxy):
-    __slots__ = (r'__managed')
-    
+    __slots__ = (r'__managed',)
+
     def __init__(self, source):
         self.__managed = dict()
         super(ManagedProxy, self).__init__(source)
@@ -18,14 +24,14 @@ class ManagedProxy(ProviderProxy):
                 if provider.isPushSupport():
                     return True
         return False
-    
+
     def isPushSupport(self):
         for providers in self.__managed.values():
             for provider in providers:
                 if provider.isPullSupport():
                     return True
         return False
-    
+
     def isCommitSupport(self):
         if self.source.isCommitSupport():
             return True
@@ -34,7 +40,7 @@ class ManagedProxy(ProviderProxy):
                 if provider.isCommitSupport():
                     return True
         return False
-    
+
     def isCloneSupport(self):
         if self.source.isCloneSupport():
             return True
@@ -43,42 +49,42 @@ class ManagedProxy(ProviderProxy):
                 if provider.isCloneSupport():
                     return True
         return False
-    
+
     def isValid(self):
         for providers in self.__managed.values():
             for provider in providers:
                 if provider.isValid():
                     return True
         return False
-    
+
     def isExist(self):
-        if not(self.source.isExist()):
+        if not self.source.isExist():
             return False
         for providers in self.__managed.values():
             for provider in providers:
-                if not(provider.isExist()):
+                if not provider.isExist():
                     return False
         return True
-    
+
     def addRemotes(self, remoteName, remotes):
         self.source.source.addRemotes(remoteName, remotes)
-        if not(remoteName in self.__managed):
+        if not remoteName in self.__managed:
             self.__managed[remoteName] = []
         baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
         providerClass = type(baseProvider)
         for remote in remotes:
             provider = providerClass(remote, baseProvider.out)
-            if utility.archiveutils.isSupportedArchive(baseProvider.path):
+            if archiveutils.isSupportedArchive(baseProvider.path):
                 provider = ArchiveProxy(provider)
             self.__managed[remoteName].append(provider)
             provider.addRemotes(remoteName, [baseProvider.path])
-    
+
     def commit(self, message, addAll):
         if self.source.isCommitSupport():
             e = self.source.commit(message, addAll)
             if e != 0:
                 return e
-        
+
         for providers in self.__managed.values():
             for provider in providers:
                 if provider.isCommitSupport():
@@ -95,7 +101,7 @@ class ManagedProxy(ProviderProxy):
                     if e != 0:
                         return e
         return 0
-    
+
     def push(self, remote, opts):
         if remote in self.__managed:
             for provider in self.__managed[remote]:
@@ -104,11 +110,11 @@ class ManagedProxy(ProviderProxy):
                     if e != 0:
                         return e
         return 0
-    
+
     def clone(self, remote, opts):
         if remote in self.__managed:
-            if not(self.source.isExist()):
-                if not(self.source.isCloneSupport()):
+            if not self.source.isExist():
+                if not self.source.isCloneSupport():
                     return -1
 
                 hasRemote = False
@@ -116,16 +122,16 @@ class ManagedProxy(ProviderProxy):
                     if provider.isExist():
                         hasRemote = True
                         break
-                
-                if not(hasRemote):
+
+                if not hasRemote:
                     return -1
 
                 e = self.source.clone(remote, opts)
                 if e != 0:
                     return e
-        
+
             for provider in self.__managed[remote]:
-                if not(provider.isExist()) and provider.isCloneSupport():
+                if not provider.isExist() and provider.isCloneSupport():
                     e = provider.clone(remote, opts)
                     if e != 0:
                         return e

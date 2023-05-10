@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../'))
 from utility.memoized_method import weak_lru
 
 class Git:
-    __slots__ = (r'__path', r'__out', r'run')
+    __slots__ = (r'__path', r'__out', r'__run')
 
     GIT_DIR = r'.git'
     GIT_SUBDIRS = (r'hooks', r'info', r'objects', r'logs', r'refs')
@@ -23,8 +23,10 @@ class Git:
     def __init__(self, path, run, out):
         self.__path = path
         self.__out = out
-        self.run = lambda cmd, callback, cd = None: \
-            run(cmd, callback, self.__path if cd is None else cd)
+        self.__run = run
+
+    def run(self, cmd, callback, cd = None):
+        return self.__run(cmd, callback, self.__path if cd is None else cd)
 
     # path
 

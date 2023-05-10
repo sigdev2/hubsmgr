@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 
 import re
+
 import parserutils
 from parseitem import ParseItem
 
 class ShortsParser:
-    __slots__ = (r'shorts')
+    __slots__ = (r'shorts',)
 
     SHORTS_CHECK_RX = re.compile(r'^/shorts/[A-z_-]+')
 

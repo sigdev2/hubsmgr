@@ -14,3 +14,6 @@ build/hubsmgr/localpycs/pyimod02_importers.pyc
 build/hubsmgr/localpycs/pyimod03_ctypes.pyc
 build/hubsmgr/localpycs/pyimod04_pywin32.pyc
 build/hubsmgr/localpycs/struct.pyc
+hubsmgr/parsers/__pycache__/specyaml.cpython-310.pyc
+hubsmgr/utility/__pycache__/utils.cpython-310.pyc
+hubsmgr/parsers/__pycache__/shortsparser.cpython-310.pyc

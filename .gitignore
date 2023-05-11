@@ -17,3 +17,4 @@ build/hubsmgr/localpycs/struct.pyc
 hubsmgr/parsers/__pycache__/specyaml.cpython-310.pyc
 hubsmgr/utility/__pycache__/utils.cpython-310.pyc
 hubsmgr/parsers/__pycache__/shortsparser.cpython-310.pyc
+test/gittest/freetags

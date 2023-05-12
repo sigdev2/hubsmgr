@@ -1,14 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-
-from providerproxy import ProviderProxy
-from archiveproxy import ArchiveProxy
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
-
+from providers.providerproxy import ProviderProxy
+from providers.archiveproxy import ArchiveProxy
 from utility import archiveutils
 
 class ManagedProxy(ProviderProxy):

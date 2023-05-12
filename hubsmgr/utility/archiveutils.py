@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from tararchive import TarArchive
-from ziparchive import ZipArchive
+from utility.tararchive import TarArchive
+from utility.ziparchive import ZipArchive
 
 def getFormatClass(path):
     if ZipArchive.isSupported(path):

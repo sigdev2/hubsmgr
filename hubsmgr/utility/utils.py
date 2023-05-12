@@ -1,11 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
-import sys
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
-
 from parsers.specyaml import SpecYamlParser
 from parsers.shortsparser import ShortsParser
 from parsers.projectsparser import ProjectsParser

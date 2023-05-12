@@ -24,7 +24,7 @@ class SyncCommands:
     __slots__ = (r'__order', r'__commands')
 
     def __init__(self, commands):
-        self.__order = tuple([] for _ in range(commands))
+        self.__order = tuple([] for _ in range(len(commands)))
         self.__commands = commands
 
     def create(self, permissions, value):

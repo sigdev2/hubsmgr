@@ -3,8 +3,8 @@
 
 import re
 
-import parserutils
-from parseitem import ParseItem
+from parsers import parserutils
+from parsers.parseitem import ParseItem
 
 class ShortsParser:
     __slots__ = (r'shorts',)

@@ -2,15 +2,11 @@
 # -*- coding: utf-8 -*-
 
 import os
-import sys
 import pathlib
 import shutil
 import tempfile
 
-from providerproxy import ProviderProxy
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
-
+from providers.providerproxy import ProviderProxy
 from utility import arhive, archiveutils
 
 class ArchiveProxy(ProviderProxy):

@@ -4,12 +4,8 @@
 import shutil
 import pathlib
 import os
-import sys
 
-from provider import Provider
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), r'../')))
-
+from providers.provider import Provider
 from utility import pathutils
 
 class PythonSync(Provider):

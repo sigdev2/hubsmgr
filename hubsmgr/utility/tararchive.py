@@ -5,6 +5,8 @@ import tarfile
 import lzma
 import os
 
+from utility import pathutils
+
 class TarArchive:
     __slots__ = (r'__path',)
 
@@ -43,7 +45,7 @@ class TarArchive:
     @staticmethod
     def isSupported(path):
         for ext in TarArchive.ARCHIVE_FORMATS:
-            if path.endswith(ext):
+            if pathutils.checkSuffix(path, ext):
                 return True
         return False
 
@@ -63,15 +65,15 @@ class TarArchive:
 
     @staticmethod
     def open(path, mode):
-        if path.endswith(r'.tar'):
+        if pathutils.checkSuffix(path, '.tar'):
             return (tarfile.open(path, mode + r':'),)
-        if path.endswith(r'.tar.gz') or path.endswith(r'.tgz'):
+        if pathutils.checkSuffix(path, r'.tar.gz') or pathutils.checkSuffix(path, r'.tgz'):
             return (tarfile.open(path, mode + r':gz'),)
-        if path.endswith(r'.tar.bz2') or path.endswith(r'.tar.bzip2') or \
-           path.endswith(r'.tbz2') or path.endswith(r'.tbzip2'):
+        if pathutils.checkSuffix(path, r'.tar.bz2') or pathutils.checkSuffix(path, r'.tar.bzip2') or \
+           pathutils.checkSuffix(path, r'.tbz2') or pathutils.checkSuffix(path, r'.tbzip2'):
             return (tarfile.open(path, mode + r':bz2'),)
-        if path.endswith(r'.tar.lzma') or path.endswith(r'.tar.xz') or \
-           path.endswith(r'.txz') or path.endswith(r'.tlzma'):
+        if pathutils.checkSuffix(path, r'.tar.lzma') or pathutils.checkSuffix(path, r'.tar.xz') or \
+           pathutils.checkSuffix(path, r'.txz') or pathutils.checkSuffix(path, r'.tlzma'):
             xz_file = lzma.LZMAFile(path, mode=mode)
             return (tarfile.open(mode=mode, fileobj=xz_file), xz_file)
         return None

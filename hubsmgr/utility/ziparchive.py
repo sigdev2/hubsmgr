@@ -5,6 +5,8 @@ import zipfile
 import time
 import os
 
+from utility import pathutils
+
 class ZipArchive:
     __slots__ = (r'__path',)
 
@@ -39,7 +41,7 @@ class ZipArchive:
 
     @staticmethod
     def isSupported(path):
-        return path.endswith(r'zip')
+        return pathutils.checkSuffix(path, r'zip')
 
     @staticmethod
     def createInfo(path):
@@ -57,7 +59,7 @@ class ZipArchive:
 
     @staticmethod
     def open(path, mode):
-        if path.endswith(r'.zip'):
+        if pathutils.checkSuffix(path, r'.zip'):
             return zipfile.ZipFile(path, mode)
         return None
 

@@ -8,7 +8,7 @@ import os
 from utility.memoized_method import weak_lru
 
 class Git:
-    __slots__ = (r'__path', r'__out', r'__run')
+    __slots__ = (r'__path', r'__out', r'__run', r'__weakref__')
 
     GIT_DIR = r'.git'
     GIT_SUBDIRS = (r'hooks', r'info', r'objects', r'logs', r'refs')

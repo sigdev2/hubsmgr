@@ -32,10 +32,11 @@ class ProjectsParser:
             parameters[r'hubs'] = hubs
             if len(hubs) > 0:
                 self.projects[projectName] = ParseItem(projectName, parameters)
-        return True
+            return True
+        return False
 
     def __unpack(self, keys, vis):
         return { sub for key in keys if not(key in vis)
-                     for sub in (self.__unpack(self.shorts[key].params, vis.union({key}))
+                     for sub in (self.__unpack(self.shorts[key].parameters, vis.union({key}))
                                  if key in self.shorts
                                  else {key}) }

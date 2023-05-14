@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import utility.archiveutils
+from utility import archiveutils
 
 #todo: support iso and isz
 
@@ -9,7 +9,7 @@ class Archive:
     __slots__ = (r'__archive',)
 
     def __init__(self, path):
-        archiveClass = utility.archiveutils.getFormatClass(path)
+        archiveClass = archiveutils.getFormatClass(path)
         if archiveClass is None:
             self.__archive = None
         else:

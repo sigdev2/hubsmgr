@@ -23,7 +23,7 @@ def generateFullPath(path, target):
     return newPath
 
 def isUrl(path):
-    match = URL_RX.search(path)
+    match = URL_RX.search(str(path))
     if match is None:
         return False
     protocol = match.group(1)
@@ -32,14 +32,16 @@ def isUrl(path):
 def isChildPathOrSame(path, root):
     return path == root or pathlib.Path(path).is_relative_to(root)
 
+def checkSuffix(path, suffix):
+    return r''.join(pathlib.Path(path).suffixes) == suffix
+
 def unpackSyncPaths(paths, target, relative):
     out = set()
-    relative = os.path.abspath(normalizePathEnding(relative.strip()))
     for path in paths:
         path = normalizePathEnding(path.strip())
         path = generateFullPath(path, target)
 
-        match = PATH_RX.search(path)
+        match = PATH_RX.search(str(path))
         if not match is None:
             protocol = match.group(1)
             if protocol.endswith(r':/'):

@@ -28,9 +28,7 @@ class GitProvider(Provider):
         return True
 
     def isCommitSupport(self):
-        currentBranch = self.__git.getCurrentBranch()
-        return len(currentBranch) > 0 and \
-               self.__git.getRevision(currentBranch) == self.__git.getRevision(r'HEAD')
+        return True
 
     def isCloneSupport(self):
         return True
@@ -42,6 +40,10 @@ class GitProvider(Provider):
         return self.__git.isRepository(False) or self.__git.isRepository(True)
 
     def commit(self, message, addAll):
+        currentBranch = self.__git.getCurrentBranch()
+        if len(currentBranch) <= 0 or \
+           self.__git.getRevision(currentBranch) != self.__git.getRevision(r'HEAD'):
+            return 0
         if not self.__git.hasChanges():
             return 0
         return self.__git.commit(message, addAll)

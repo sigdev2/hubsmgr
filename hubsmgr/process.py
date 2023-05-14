@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import utility.pathutils
-import utility.archiveutils
+from utility import pathutils, archiveutils
 from synccommands import SyncCommands
 from providers.gitprovider import GitProvider
 from providers.pythonsync import PythonSync
@@ -35,23 +34,23 @@ class ProjectProcessor:
 
         projectPath = self.__root / name
 
-        for remoteName, hub in project.parameters[r'hubs'].items():
+        for hub in project.parameters[r'hubs']:
             opts = hub.parameters[r'options']
-            paths = utility.pathutils.unpackSyncPaths(hub.parameters[r'paths'], name, self.__root)
+            paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], name, self.__root)
             isHubPull, isHubPush = getPulPushOptions(opts)
-            provider = self.__createProvider(
-                hub.parameters[r'providers'][0], projectPath, remoteName, paths, r'managed' in opts)
+            provider = self.__createProvider(next(iter(hub.parameters[r'providers'])),
+                                             projectPath, hub.id, paths, r'managed' in opts)
             if provider is not None:
                 command = ProjectProcessor.SYNC_COMMANDS.create(
                     (True, isAutocommit, isPull, isPush),
-                    (remoteName, provider))
+                    (hub.id, provider))
                 command.merge((provider.isCloneSupport(), provider.isCommitSupport(),
                                provider.isPullSupport(), provider.isPushSupport()))
                 command.merge((True, not isFreeze, isHubPull and not isFreeze,
                                isHubPush and not isFreeze))
                 ProjectProcessor.SYNC_COMMANDS.add(command)
 
-        ProjectProcessor.SYNC_COMMANDS.exec((project.parameters[r'options']))
+        ProjectProcessor.SYNC_COMMANDS.exec((project.parameters[r'options'],))
 
     def __createProvider(self, name, path, remoteName, remotes, managed):
         provider = None
@@ -60,7 +59,7 @@ class ProjectProcessor:
         elif name == r'git':
             provider = GitProvider(path, self.__out)
         if provider is not None:
-            if utility.archiveutils.isSupportedArchive(path):
+            if archiveutils.isSupportedArchive(path):
                 provider = ArchiveProxy(provider)
             if managed:
                 provider = ManagedProxy(provider)

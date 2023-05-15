@@ -40,3 +40,4 @@ hubsmgr/utility/__pycache__/memoized_method.cpython-310.pyc
 hubsmgr/utility/__pycache__/pathutils.cpython-310.pyc
 hubsmgr/utility/__pycache__/tararchive.cpython-310.pyc
 hubsmgr/utility/__pycache__/ziparchive.cpython-310.pyc
+test/hub/pysync

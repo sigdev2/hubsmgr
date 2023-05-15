@@ -14,7 +14,7 @@ from process import ProjectProcessor
 def processProjects(projects, root):
     i = 0
     logTag = r''
-    def out(message):
+    def out(message, isCommand):
         Logger.partmessage(i, len(projects), logTag, message)
     processor = ProjectProcessor(root, out)
     for name, project in projects.items():

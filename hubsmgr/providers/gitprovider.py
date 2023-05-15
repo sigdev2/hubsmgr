@@ -53,6 +53,8 @@ class GitProvider(Provider):
         for url in self.remotes:
             self.__git.addRemote(remote, url)
             opts = gitoptions.GitOptions(remote, opts, self.__git)
+            if not self.__git.isRepository(opts.bare):
+                return -1
 
             # store revision with context
             def storeRevision():
@@ -145,6 +147,8 @@ class GitProvider(Provider):
         for url in self.remotes:
             self.__git.addRemote(remote, url)
             opts = gitoptions.GitOptions(remote, opts, self.__git)
+            if not self.__git.isRepository(opts.bare):
+                return -1
 
             cmds = []
 
@@ -164,10 +168,16 @@ class GitProvider(Provider):
         return 0
 
     def clone(self, remote, opts):
+        e = -1
+        for url in self.remotes:
+            opts = gitoptions.GitOptions(remote, opts, self.__git)
+            e = self.__git.clone(remote, url, opts.bare)
+            if e == 0:
+                break
+        if e != 0:
+            return 0
+
         for url in self.remotes:
             self.__git.addRemote(remote, url)
-            opts = gitoptions.GitOptions(remote, opts, self.__git)
-            e = self.__git.clone(remote, self.path, opts.bare)
-            if e == 0:
-                return 0
-        return -1
+
+        return 0

@@ -30,6 +30,8 @@ class Git:
     @weak_lru(maxsize=None)
     def isRepository(self, bare):
         root = pathlib.Path(self.__path)
+        if not root.exists():
+            return False
         for subdir in Git.GIT_SUBDIRS:
             if not bare:
                 subdir = Git.GIT_DIR + os.sep + subdir
@@ -43,21 +45,23 @@ class Git:
     @weak_lru(maxsize=None)
     def getRevision(self, item):
         revision = [r'']
-        def inserter(line, isCommand):
-            if not isCommand:
-                revision[0] = line
-        if self.run(r'git rev-parse ' + item, inserter) != 0:
-            return r''
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    revision[0] = line
+            if self.run(r'git rev-parse ' + item, inserter) != 0:
+                return r''
         return revision[0]
 
     @weak_lru(maxsize=None)
     def getObjectType(self, objhash):
         objtype = [r'']
-        def inserter(line, isCommand):
-            if not isCommand:
-                objtype[0] = line
-        if self.run(r'git cat-file -t ' + objhash, inserter) != 0:
-            return r''
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    objtype[0] = line
+            if self.run(r'git cat-file -t ' + objhash, inserter) != 0:
+                return r''
         return objtype[0]
 
     # changes
@@ -65,11 +69,12 @@ class Git:
     @weak_lru(maxsize=None)
     def hasChanges(self):
         hasChanges = [False]
-        def inserter(line, isCommand):
-            if not(isCommand) and len(line) > 0:
-                hasChanges[0] = True
-        if self.run(r'git status --porcelain', inserter) != 0:
-            return False
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not(isCommand) and len(line) > 0:
+                    hasChanges[0] = True
+            if self.run(r'git status --porcelain', inserter) != 0:
+                return False
         return hasChanges[0]
 
     # branches
@@ -77,39 +82,42 @@ class Git:
     @weak_lru(maxsize=None)
     def getCurrentBranch(self):
         current = [r'']
-        def inserter(line, isCommand):
-            if not isCommand:
-                current[0] = line
-        if self.run(r'git branch --show-current', inserter) != 0:
-            return r''
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    current[0] = line
+            if self.run(r'git branch --show-current', inserter) != 0:
+                return r''
         return current[0]
 
     @weak_lru(maxsize=None)
     def getLocalBranches(self):
         branches = {}
-        def inserter(line, isCommand):
-            if not isCommand and not r'HEAD detached' in line:
-                matches = Git.BRANCH_NAME_RX.finditer(line)
-                for _, match in enumerate(matches, start=1):
-                    branch = match.group(1)
-                    branches[branch] = self.getRevision(branch)
-        if self.run(r'git branch', inserter) != 0:
-            return {self}
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand and not r'HEAD detached' in line:
+                    matches = Git.BRANCH_NAME_RX.finditer(line)
+                    for _, match in enumerate(matches, start=1):
+                        branch = match.group(1)
+                        branches[branch] = self.getRevision(branch)
+            if self.run(r'git branch', inserter) != 0:
+                return {self}
         return branches
 
     @weak_lru(maxsize=None)
     def getRemoteBranches(self, remoteName):
         branches = {}
-        def inserter(line, isCommand):
-            if not isCommand:
-                matches = Git.REMOTE_BRANCH_RX.finditer(line)
-                for _, match in enumerate(matches, start=1):
-                    objhash = match.group(1)
-                    branch = match.group(2)
-                    branches[branch] = objhash
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    matches = Git.REMOTE_BRANCH_RX.finditer(line)
+                    for _, match in enumerate(matches, start=1):
+                        objhash = match.group(1)
+                        branch = match.group(2)
+                        branches[branch] = objhash
 
-        if self.run(r'git ls-remote -h ' + remoteName, inserter) !=0:
-            return {}
+            if self.run(r'git ls-remote -h ' + remoteName, inserter) !=0:
+                return {}
         return branches
 
     # tags
@@ -117,36 +125,39 @@ class Git:
     @weak_lru(maxsize=None)
     def getLocalTags(self):
         tags = {}
-        def inserter(tag, isCommand):
-            if not isCommand:
-                tags[tag] = self.getRevision(tag)
-        if self.run(r'git tag', inserter) != 0:
-            return {}
+        if os.path.exists(self.__path):
+            def inserter(tag, isCommand):
+                if not isCommand:
+                    tags[tag] = self.getRevision(tag)
+            if self.run(r'git tag', inserter) != 0:
+                return {}
         return tags
 
     @weak_lru(maxsize=None)
     def getRemoteTags(self, remote):
         tags = {}
-        def inserter(line, isCommand):
-            if not isCommand:
-                matches = Git.REMOTE_TAG_RX.finditer(line)
-                for _, match in enumerate(matches, start=1):
-                    objhash = match.group(1)
-                    branch = match.group(2)
-                    tags[branch] = objhash
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    matches = Git.REMOTE_TAG_RX.finditer(line)
+                    for _, match in enumerate(matches, start=1):
+                        objhash = match.group(1)
+                        branch = match.group(2)
+                        tags[branch] = objhash
 
-        if self.run(r'git ls-remote --tags ' + remote, inserter) !=0:
-            return {}
+            if self.run(r'git ls-remote --tags ' + remote, inserter) !=0:
+                return {}
         return tags
 
     @weak_lru(maxsize=None)
     def getTagType(self, tag):
         objtype = [r'']
-        def inserter(line, isCommand):
-            if not(isCommand) and line.startswith(r'type '):
-                objtype[0] = line[5:]
-        if self.run(r'git cat-file -p ' + tag, inserter) != 0:
-            return r''
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not(isCommand) and line.startswith(r'type '):
+                    objtype[0] = line[5:]
+            if self.run(r'git cat-file -p ' + tag, inserter) != 0:
+                return r''
         return objtype[0]
 
     # remotes
@@ -154,24 +165,28 @@ class Git:
     @weak_lru(maxsize=None)
     def getRemoteUrl(self, remoteName):
         url = [r'']
-        def inserter(line, isCommand):
-            if not isCommand:
-                url[0] = line
-        if self.run(r'git config --get remote.' + remoteName + r'.url ', inserter) != 0:
-            return r''
+        if os.path.exists(self.__path):
+            def inserter(line, isCommand):
+                if not isCommand:
+                    url[0] = line
+            if self.run(r'git config --get remote.' + remoteName + r'.url ', inserter) != 0:
+                return r''
         return url[0]
 
     @weak_lru(maxsize=None)
     def hasRemote(self, remoteName):
         hasRemote = [False]
-        def checker(existRemote, isCommand):
-            if not isCommand:
-                hasRemote[0] = hasRemote[0] or existRemote == remoteName
-        if self.run(r'git remote', checker) != 0:
-            return False
+        if os.path.exists(self.__path):
+            def checker(existRemote, isCommand):
+                if not isCommand:
+                    hasRemote[0] = hasRemote[0] or existRemote == remoteName
+            if self.run(r'git remote', checker) != 0:
+                return False
         return hasRemote[0]
 
     def addRemote(self, remoteName, url):
+        if not os.path.exists(self.__path):
+            return -1
         def clearCahche():
             self.clearRemotesCache()
             self.clearRemotesObjectsCache()
@@ -197,6 +212,8 @@ class Git:
             return r'git checkout ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmd, self.__out)
 
     def fetch(self, remoteName, tagOrBranchOrRevision, getCommands = False):
@@ -206,6 +223,8 @@ class Git:
             return r'git fetch ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmd, self.__out)
 
     def merge(self, remoteName, branch, unrelated, getCommands = False):
@@ -217,6 +236,8 @@ class Git:
                    remoteName + r'/' + branch
         if getCommands:
             return [cmd]
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmd, self.__out)
 
     def pull_branch_with_checkout(self, remoteName, branch, isNew, unrelated, getCommands = False):
@@ -228,6 +249,8 @@ class Git:
             cmds.append(self.merge(remoteName, branch, unrelated, True)[0])
         if getCommands:
             return cmds
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmds, self.__out)
 
     def pull_tag(self, remoteName, tag, getCommands = False):
@@ -240,6 +263,8 @@ class Git:
             return r'git push ' + remoteName + r' ' + tagOrBranch + r':' + tagOrBranch
         if getCommands:
             return [cmd]
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmd, self.__out)
 
     def clone(self, remoteName, url, bare, getCommands = False):
@@ -274,6 +299,8 @@ class Git:
         cmds.append(cmdCommit)
         if getCommands:
             return cmds
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmds, self.__out)
 
     def updateSubmodules(self, getCommands = False):
@@ -282,6 +309,8 @@ class Git:
             return r'git submodule update --init --recursive --remote'
         if getCommands:
             return [cmd]
+        if not os.path.exists(self.__path):
+            return -1
         return self.run(cmd, self.__out)
 
     # cache cleaners

@@ -36,7 +36,7 @@ class SyncCommands:
                 objs.append(obj)
 
     def clear(self):
-        self.__order = tuple([] for _ in range(self.__commands))
+        self.__order = tuple([] for _ in range(len(self.__commands)))
 
     def exec(self, arguments):
         for i, objs in enumerate(self.__order):

@@ -60,7 +60,7 @@ class PythonSync(Provider):
         return -1
 
     def __copyWithProgress(self, src, dst, *args, follow_symlinks=True):
-        self.out(src + r' -> ' + dst, False)
+        self.out(str(src) + r' -> ' + str(dst), False)
         return shutil.copy2(src, dst, *args, follow_symlinks=follow_symlinks)
 
     def __compare2file(self, file1, file2):
@@ -113,7 +113,7 @@ class PythonSync(Provider):
             if not r'noconflicts' in opts:
                 if (sourceInfo.st_size != targetInfo.st_size) or \
                    (cmpFiles and not self.__compare2file(source, target)):
-                    self.out(r'Conflict: ' + source + r' -> ' + target +
+                    self.out(r'Conflict: ' + str(source) + r' -> ' + str(target) +
                              r' (equal modification time files with different content)',
                              False)
                     self.__copyWithProgress(source,

@@ -61,3 +61,20 @@ def unpackSyncPaths(paths, target, relative):
                 if not isChildPathOrSame(absPath, relative) and os.path.exists(absPath):
                     out.add(absPath)
     return out
+
+def yamlpaths(path):
+    paths = []
+    if path.is_dir():
+        path = path.resolve()
+        paths = [f for ext in (r'*.yaml', r'*.yml') for f in path.glob(ext)]
+    elif path.is_file():
+        paths.append(path)
+    return paths
+
+def configdir(config):
+    rootPath = config.parent / config.stem
+    if not rootPath.exists() or not rootPath.is_dir():
+        rootPath.mkdir()
+    if not rootPath.exists():
+        return False
+    return rootPath

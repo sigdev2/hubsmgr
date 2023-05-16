@@ -7,7 +7,7 @@ import pathlib
 import traceback
 from time import sleep
 
-from utility import utils
+from utility import utils, pathutils
 from utility.logger import Logger
 from process import ProjectProcessor
 
@@ -23,7 +23,7 @@ def processProjects(projects, root):
 
 def sync(config):
     os.chdir(config.parent)
-    rootPath = utils.configdir(config)
+    rootPath = pathutils.configdir(config)
     if not rootPath:
         Logger.error(r'Root folder for ' + ascii(config.as_posix()) + r' is not exist')
         return
@@ -43,7 +43,7 @@ if __name__ == r'__main__':
             Logger.error(r'No input yaml file or directory')
         else:
             path = pathlib.Path(os.path.abspath(sys.argv[1].strip()))
-            for file in utils.yamlpaths(path):
+            for file in pathutils.yamlpaths(path):
                 sync(file)
     except Exception as e:
         print(traceback.format_exc())

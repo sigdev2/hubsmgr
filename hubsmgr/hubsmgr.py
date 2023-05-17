@@ -10,7 +10,7 @@ from time import sleep
 from utility import pathutils
 from utility.logger import Logger
 from process import ProjectProcessor
-from parsers.shortsparser import SpecYamlParser
+from parsers.specyaml import SpecYamlParser
 
 def processProjects(projects, root):
     i = 0

@@ -19,23 +19,32 @@ class ProjectProcessor:
                                   pair[1].clone(pair[0], opts) if not(pair[1].isExist()) else None,
                                   lambda pair, opts: pair[1].commit(r'auto commit', True),
                                   lambda pair, opts: pair[1].pull(pair[0], opts),
-                                  lambda pair, opts: pair[1].push(pair[0], opts)])
+                                  lambda pair, opts: pair[1].push(pair[0], opts)]) # todo: add logs comments of operations
 
     def __init__(self, root, out):
         self.__root = root
         self.__out = out
 
-    def process(self, name, project):
+    def process(self, project):
         sync = project.parameters[r'sync']
         isFreeze = r'freeze' in sync
         isAutocommit = r'autocommit' in sync
         isPull, isPush = getPulPushOptions(sync)
 
-        projectPath = self.__root / name
+        # todo: unpak project parameners like zip pass or local zip init
+        projectPath = self.__root / project.id
+        hubs = project.parameters[r'hubs']
 
-        for hub in project.parameters[r'hubs']:
+        self.__out(project.id + r' :' + \
+                   (r' autocommit' if isAutocommit else r'') + \
+                   (r' pull' if isPull else r'') + \
+                   (r' push' if isPush else r''), r'OPTS')
+
+        self.__out(project.id + r' : ' + r''.join([hub.id for hub in hubs]), r'HUBS')
+
+        for hub in hubs:
             opts = hub.parameters[r'options']
-            paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], name, self.__root)
+            paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], project.id, self.__root)
             isHubPull, isHubPush = getPulPushOptions(opts)
             provider = self.__createProvider(next(iter(hub.parameters[r'providers'])),
                                              projectPath, hub.id, paths, r'managed' in opts)
@@ -54,9 +63,9 @@ class ProjectProcessor:
     def __createProvider(self, name, path, remoteName, remotes, managed):
         provider = None
         if name == r'pysync':
-            provider = PythonSync(path, self.__out)
+            provider = PythonSync(path, lambda m, _: self.__out(m, r'PYSYNC'))
         elif name == r'git':
-            provider = GitProvider(path, self.__out)
+            provider = GitProvider(path, lambda m, _: self.__out(m, r'GIT'))
         if provider is not None:
             if archiveutils.isSupportedArchive(path):
                 provider = ArchiveProxy(provider)

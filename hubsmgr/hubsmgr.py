@@ -14,13 +14,15 @@ from parsers.specyaml import SpecYamlParser
 
 def processProjects(projects, root):
     i = 0
-    logTag = r''
-    def out(message, isCommand):
-        Logger.partmessage(i, len(projects), logTag, message)
+    count = len(projects)
+    def out(message, logTag):
+        Logger.partmessage(i, count, logTag, message)
     processor = ProjectProcessor(root, out)
-    for name, project in projects.items():
-        processor.process(name, project)
+    for project in projects.values():
+        Logger.partstart(i, count, project.id)
+        processor.process(project)
         i += 1
+        Logger.partend(i, count, project.id)
 
 def sync(config):
     os.chdir(config.parent)

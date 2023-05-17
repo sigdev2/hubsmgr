@@ -9,6 +9,8 @@ from utility import pathutils
 from providers.provider import Provider
 
 class PythonSync(Provider):
+    __slots__ = (r'__remotes',)
+
     def __init__(self, path, out = None):
         self.__remotes = {}
         super(PythonSync, self).__init__(path, out)

@@ -9,8 +9,8 @@ from parsers.parseitem import ParseItem
 class ProjectsParser:
     __slots__ = (r'projects', r'shorts', r'hubs')
 
-    PROJECT_PROPS = { r'sync': [r'pull', r'push', r'freeze', r'autocommit'] }
-    PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-]+')
+    PROJECT_PROPS = { r'sync': (r'pull', r'push', r'freeze', r'autocommit') }
+    PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-0-9]+')
 
     def __init__(self, shorts, hubs):
         self.projects = {}

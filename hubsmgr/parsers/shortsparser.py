@@ -3,22 +3,12 @@
 
 import re
 
-from utility import parserutils
-from parsers.parseitem import ParseItem
+from parsers.parser import Parser
 
-class ShortsParser:
-    __slots__ = (r'shorts',)
+class ShortsParser(Parser):
+    __slots__ = ()
 
-    SHORTS_CHECK_RX = re.compile(r'^/shorts/[A-z_-]+')
+    SHORTS_CHECK_RX = re.compile(r'^/shorts/[A-z_-0-9]+')
 
     def __init__(self):
-        self.shorts = {}
-
-    def check(self, path):
-        return ShortsParser.SHORTS_CHECK_RX.match(path)
-
-    def process(self, shortParams, shortName):
-        shortParams = parserutils.parseSet(shortParams)
-        if len(shortParams) > 0:
-            self.shorts[shortName] = ParseItem(shortName, shortParams)
-        return True
+        super(ShortsParser, self).__init__({}, r'shorts', ShortsParser.SHORTS_CHECK_RX)

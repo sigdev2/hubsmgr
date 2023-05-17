@@ -20,7 +20,8 @@ class ZipArchive:
                 name, date_time = f.filename, f.date_time
                 name = os.path.join(toPath, name)
                 with open(name, r'wb') as outFile:
-                    outFile.write(archive.open(f).read())
+                    with archive.open(f) as content:
+                        outFile.write(content.read())
                 date_time = time.mktime(date_time + (0, 0, -1))
                 os.utime(name, (date_time, date_time))
             archive.close()

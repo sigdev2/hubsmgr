@@ -25,7 +25,7 @@ class SpecYamlParser:
         for parser in (parsers if len(path) > 0 else []):
             if parser.check(path) and parser.process(data, node):
                 return
-        for dataKey in (data
-                        if isinstance(data, dict)
-                        else (range(data) if isinstance(data, list) else [])):
+        for dataKey in (data if isinstance(data, dict) else
+                        (range(len(data)) if isinstance(data, list) else
+                         [])):
             self.__recParse(parsers, data[dataKey], path + r'/' + str(dataKey), str(dataKey))

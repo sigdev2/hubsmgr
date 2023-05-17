@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from utility import pathutils, git, gitoptions
 from providers.provider import Provider
-from gitutils import git, gitoptions
-from utility import pathutils
 
 class CheckoutContext:
     __slots__ = (r'revision', r'branch', r'isBranchHead', r'freeTags')

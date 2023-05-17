@@ -3,7 +3,7 @@ import functools
 import weakref
 
 def weak_lru(maxsize=128, typed=False):
-    r'LRU Cache decorator that keeps a weak reference to "self"'
+    # LRU Cache decorator that keeps a weak reference to self
     def wrapper(func):
 
         @functools.lru_cache(maxsize, typed)

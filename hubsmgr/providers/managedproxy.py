@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from utility import archiveutils
 from providers.providerproxy import ProviderProxy
 from providers.archiveproxy import ArchiveProxy
-from utility import archiveutils
 
 class ManagedProxy(ProviderProxy):
     __slots__ = (r'__managed',)

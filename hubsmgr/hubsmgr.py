@@ -7,9 +7,10 @@ import pathlib
 import traceback
 from time import sleep
 
-from utility import utils, pathutils
+from utility import pathutils
 from utility.logger import Logger
 from process import ProjectProcessor
+from parsers.shortsparser import SpecYamlParser
 
 def processProjects(projects, root):
     i = 0
@@ -29,7 +30,7 @@ def sync(config):
         return
 
     Logger.message(r'YAML', r'Parse yaml: ' + ascii(config.as_posix()))
-    projectsParser = utils.parseconfig(config)
+    projectsParser = SpecYamlParser.parseconfig(config)
     Logger.message(r'YAML', r'Finded hubs [' + str(len(projectsParser.hubs)) + r']')
     Logger.message(r'YAML', r'Finded projects [' + str(len(projectsParser.projects)) + r']')
 

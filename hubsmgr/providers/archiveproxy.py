@@ -6,8 +6,8 @@ import pathlib
 import shutil
 import tempfile
 
-from providers.providerproxy import ProviderProxy
 from utility import arhive, archiveutils
+from providers.providerproxy import ProviderProxy
 
 class ArchiveProxy(ProviderProxy):
     __slots__ = (r'__packed', r'__tempdir', r'__unpacked')

@@ -3,7 +3,7 @@
 
 import re
 
-from parsers import parserutils
+from utility import parserutils
 from parsers.parseitem import ParseItem
 
 class HubsParser:

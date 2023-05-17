@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utility import pathutils, archiveutils
-from synccommands import SyncCommands
+from utility import pathutils, archiveutils, synccommands
 from providers.gitprovider import GitProvider
 from providers.pythonsync import PythonSync
 from providers.archiveproxy import ArchiveProxy
@@ -16,7 +15,7 @@ def getPulPushOptions(opts):
 class ProjectProcessor:
     __slots__ = (r'__root', r'__out')
 
-    SYNC_COMMANDS = SyncCommands([lambda pair, opts: \
+    SYNC_COMMANDS = synccommands.SyncCommands([lambda pair, opts: \
                                   pair[1].clone(pair[0], opts) if not(pair[1].isExist()) else None,
                                   lambda pair, opts: pair[1].commit(r'auto commit', True),
                                   lambda pair, opts: pair[1].pull(pair[0], opts),

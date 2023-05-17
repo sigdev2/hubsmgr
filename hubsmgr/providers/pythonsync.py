@@ -5,8 +5,8 @@ import shutil
 import pathlib
 import os
 
-from providers.provider import Provider
 from utility import pathutils
+from providers.provider import Provider
 
 class PythonSync(Provider):
     def __init__(self, path, out = None):

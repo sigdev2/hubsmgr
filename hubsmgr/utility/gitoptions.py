@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from gitutils import sha1utils
+from utility import sha1utils
 
 class GitOptions:
     __slots__ = (r'nosubmodules',

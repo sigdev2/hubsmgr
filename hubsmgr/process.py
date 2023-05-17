@@ -1,25 +1,14 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utility import pathutils, archiveutils, synccommands
+from utility import pathutils, archiveutils, syncutils
 from providers.gitprovider import GitProvider
 from providers.pythonsync import PythonSync
 from providers.archiveproxy import ArchiveProxy
 from providers.managedproxy import ManagedProxy
 
-def getPulPushOptions(opts):
-    hasPull = r'pull' in opts
-    hasPush = r'push' in opts
-    return (hasPull or not hasPush), (hasPush or not hasPull)
-
 class ProjectProcessor:
     __slots__ = (r'__root', r'__out')
-
-    SYNC_COMMANDS = synccommands.SyncCommands([lambda pair, opts: \
-                                  pair[1].clone(pair[0], opts) if not(pair[1].isExist()) else None,
-                                  lambda pair, opts: pair[1].commit(r'auto commit', True),
-                                  lambda pair, opts: pair[1].pull(pair[0], opts),
-                                  lambda pair, opts: pair[1].push(pair[0], opts)]) # todo: add logs comments of operations
 
     def __init__(self, root, out):
         self.__root = root
@@ -29,9 +18,9 @@ class ProjectProcessor:
         sync = project.parameters[r'sync']
         isFreeze = r'freeze' in sync
         isAutocommit = r'autocommit' in sync
-        isPull, isPush = getPulPushOptions(sync)
+        isPull, isPush = syncutils.getPulPushOptions(sync)
 
-        # todo: unpak project parameners like zip pass or local zip init
+        # todo: project parameters like zip pass or local zip init
         projectPath = self.__root / project.id
         hubs = project.parameters[r'hubs']
 
@@ -45,20 +34,20 @@ class ProjectProcessor:
         for hub in hubs:
             opts = hub.parameters[r'options']
             paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], project.id, self.__root)
-            isHubPull, isHubPush = getPulPushOptions(opts)
+            isHubPull, isHubPush = syncutils.getPulPushOptions(opts)
             provider = self.__createProvider(next(iter(hub.parameters[r'providers'])),
                                              projectPath, hub.id, paths, r'managed' in opts)
             if provider is not None:
-                command = ProjectProcessor.SYNC_COMMANDS.create(
+                command = syncutils.PROVIDER_CMDS.create(
                     (True, isAutocommit, isPull, isPush),
-                    (hub.id, provider))
+                    syncutils.SyncUnit(hub.id, provider))
                 command.merge((provider.isCloneSupport(), provider.isCommitSupport(),
                                provider.isPullSupport(), provider.isPushSupport()))
                 command.merge((True, not isFreeze, isHubPull and not isFreeze,
                                isHubPush and not isFreeze))
-                ProjectProcessor.SYNC_COMMANDS.add(command)
+                syncutils.PROVIDER_CMDS.add(command)
 
-        ProjectProcessor.SYNC_COMMANDS.exec((project.parameters[r'options'],))
+        return syncutils.PROVIDER_CMDS.exec((project.parameters[r'options'],))
 
     def __createProvider(self, name, path, remoteName, remotes, managed):
         provider = None
@@ -68,9 +57,12 @@ class ProjectProcessor:
             provider = GitProvider(path, lambda m, _: self.__out(m, r'GIT'))
         if provider is not None:
             if archiveutils.isSupportedArchive(path):
+                self.__out(r'Is archived provider for remote ' + remoteName, r'ARCHIVED')
                 provider = ArchiveProxy(provider)
             if managed:
+                self.__out(r'Is managed provider for remote ' + remoteName, r'MANAGED')
                 provider = ManagedProxy(provider)
+            self.__out(r'Add remote urls from ' + remoteName + r' : ' + remotes, r'URLS')
             provider.addRemotes(remoteName, remotes)
             if provider.isValid():
                 return provider

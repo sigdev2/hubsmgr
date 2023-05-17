@@ -63,6 +63,7 @@ class ArchiveProxy(ProviderProxy):
         if archivemtime > dirmtime:
             return -1
 
+        self.source.out(r'Pack ' + str(self.__tempdir) + r' -> ' + str(self.__packed.path), False)
         file = tempfile.TemporaryFile()
         archive = arhive.Archive(file)
         archive.packall(self.__tempdir)
@@ -72,7 +73,10 @@ class ArchiveProxy(ProviderProxy):
         return 0
 
     def __unpack(self):
-        if self.isExist() and not self.__unpacked:
-            archive = arhive.Archive(self.__packed.path)
-            archive.unpackall(self.__tempdir)
-            self.__unpacked = True
+        if not self.isExist() or self.__unpacked:
+            return
+        # todo: reading archive without unpacking or unpack in memory (is acceptable size)
+        self.source.out(r'Unpack ' + str(self.__packed.path) + r' -> ' + str(self.__tempdir), False)
+        archive = arhive.Archive(self.__packed.path)
+        archive.unpackall(self.__tempdir)
+        self.__unpacked = True

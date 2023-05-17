@@ -20,7 +20,9 @@ def processProjects(projects, root):
     processor = ProjectProcessor(root, out)
     for project in projects.values():
         Logger.partstart(i, count, project.id)
-        processor.process(project)
+        e = processor.process(project)
+        if e != 0:
+            Logger.error(r'Operation return exit code: ' + str(e))
         i += 1
         Logger.partend(i, count, project.id)
 
@@ -48,6 +50,7 @@ if __name__ == r'__main__':
             path = pathlib.Path(os.path.abspath(sys.argv[1].strip()))
             for file in pathutils.yamlpaths(path):
                 sync(file)
-    except Exception as e:
+    except Exception as err: # pylint: disable=broad-exception-caught
         print(traceback.format_exc())
+        print(err)
         sleep(20)

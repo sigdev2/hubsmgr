@@ -35,11 +35,11 @@ def sync(config):
 
     Logger.message(r'YAML', r'Parse yaml: ' + ascii(config.as_posix()))
     projectsParser = SpecYamlParser.parseconfig(config)
-    Logger.message(r'YAML', r'Finded hubs [' + str(len(projectsParser.hubs)) + r']')
-    Logger.message(r'YAML', r'Finded projects [' + str(len(projectsParser.projects)) + r']')
+    Logger.message(r'YAML', r'Finded hubs [' + str(projectsParser.countHubs()) + r']')
+    Logger.message(r'YAML', r'Finded projects [' + str(len(projectsParser.items)) + r']')
 
     Logger.headerStart(r'SYNC', ascii(rootPath.as_posix()))
-    processProjects(projectsParser.projects, rootPath)
+    processProjects(projectsParser.items, rootPath)
     Logger.headerEnd(r'SYNC')
 
 if __name__ == r'__main__':

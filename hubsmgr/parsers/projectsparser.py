@@ -20,6 +20,9 @@ class ProjectsParser(Parser):
               r'hubs' : self.__hubs.keys() },
             r'options', ProjectsParser.PROJECT_CHECK_RX)
 
+    def countHubs(self):
+        return len(self.__hubs)
+
     def process(self, project, projectName):
         project = parserutils.parseSet(project)
         if len(project) <= 0:
@@ -33,7 +36,7 @@ class ProjectsParser(Parser):
         return True
 
     def __unpack(self, keys, vis):
-        return { sub for key in keys if not(key in vis)
+        return { sub for key in keys if not key in vis
                      for sub in (self.__unpack(self.__shorts[key].parameters, vis.union({key}))
                                  if key in self.__shorts
                                  else {key}) }

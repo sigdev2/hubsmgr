@@ -16,7 +16,7 @@ class SpecYamlParser:
     def parseconfig(config):
         shortsParser = ShortsParser()
         hubsParser = HubsParser()
-        projectsParser = ProjectsParser(shortsParser.shorts, hubsParser.hubs)
+        projectsParser = ProjectsParser(shortsParser.items, hubsParser.items)
         with config.open(r'r') as f:
             SpecYamlParser().parse((shortsParser, hubsParser, projectsParser), f)
         return projectsParser

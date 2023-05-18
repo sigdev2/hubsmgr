@@ -8,7 +8,7 @@ from parsers.parser import Parser
 class HubsParser(Parser):
     __slots__ = ()
 
-    HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_-0-9]+')
+    HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_\-0-9]+')
 
     def __init__(self):
         super(HubsParser, self).__init__({ r'providers': (r'git', r'pysync'),

@@ -41,3 +41,9 @@ hubsmgr/utility/__pycache__/pathutils.cpython-310.pyc
 hubsmgr/utility/__pycache__/tararchive.cpython-310.pyc
 hubsmgr/utility/__pycache__/ziparchive.cpython-310.pyc
 test/hub/pysync
+hubsmgr/utility/__pycache__/git.cpython-310.pyc
+hubsmgr/utility/__pycache__/gitoptions.cpython-310.pyc
+hubsmgr/utility/__pycache__/parserutils.cpython-310.pyc
+hubsmgr/utility/__pycache__/sha1utils.cpython-310.pyc
+hubsmgr/utility/__pycache__/syncutils.cpython-310.pyc
+hubsmgr/parsers/__pycache__/parser.cpython-310.pyc

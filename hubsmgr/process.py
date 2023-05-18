@@ -62,7 +62,7 @@ class ProjectProcessor:
             if managed:
                 self.__out(r'Is managed provider for remote ' + remoteName, r'MANAGED')
                 provider = ManagedProxy(provider)
-            self.__out(r'Add remote urls from ' + remoteName + r' : ' + remotes, r'URLS')
+            self.__out(r'Add remote urls from ' + remoteName + r' : ' + str(remotes), r'URLS')
             provider.addRemotes(remoteName, remotes)
             if provider.isValid():
                 return provider

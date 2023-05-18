@@ -13,7 +13,7 @@ class HubsParser(Parser):
     def __init__(self):
         super(HubsParser, self).__init__({ r'providers': (r'git', r'pysync'),
                                            r'options': (r'pull', r'push', r'freeze', r'managed') },
-                                          r'paths', HubsParser.HUBS_CHECK_RX)
+                                         r'paths', HubsParser.HUBS_CHECK_RX)
 
     def validate(self, parameters):
         return (len(parameters[r'paths']) > 0) and len(parameters[r'providers']) > 0

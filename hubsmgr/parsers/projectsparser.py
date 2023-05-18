@@ -4,39 +4,36 @@
 import re
 
 from utility import parserutils
+from parsers.parser import Parser
 from parsers.parseitem import ParseItem
 
-class ProjectsParser:
-    __slots__ = (r'projects', r'shorts', r'hubs')
+class ProjectsParser(Parser):
+    __slots__ = (r'projects', r'__shorts', r'__hubs')
 
-    PROJECT_PROPS = { r'sync': (r'pull', r'push', r'freeze', r'autocommit') }
     PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-0-9]+')
 
     def __init__(self, shorts, hubs):
-        self.projects = {}
-        self.shorts = shorts
-        self.hubs = hubs
-
-    def check(self, path):
-        return ProjectsParser.PROJECT_CHECK_RX.match(path)
+        self.__shorts = shorts
+        self.__hubs = hubs
+        super(ProjectsParser, self).__init__(
+            { r'sync': (r'pull', r'push', r'freeze', r'autocommit'),
+              r'hubs' : self.__hubs.keys() },
+            r'options', ProjectsParser.PROJECT_CHECK_RX)
 
     def process(self, project, projectName):
         project = parserutils.parseSet(project)
-        if len(project) > 0:
-            keywords = ProjectsParser.PROJECT_PROPS
-            keywords[r'hubs'] = self.hubs.keys()
-            parameters = parserutils.parseKeywords(self.__unpack(project, set()),
-                                                   keywords, r'options')
-            hubsKeys = parameters[r'hubs']
-            hubs = [self.hubs[key] for key in hubsKeys if key in self.hubs]
+        if len(project) <= 0:
+            return False
+        parameters = self.parseKeywords(self.__unpack(project, set()))
+        hubsKeys = parameters[r'hubs']
+        hubs = tuple(self.__hubs[key] for key in hubsKeys if key in self.__hubs)
+        if len(hubs) > 0:
             parameters[r'hubs'] = hubs
-            if len(hubs) > 0:
-                self.projects[projectName] = ParseItem(projectName, parameters)
-            return True
-        return False
+            self.items[projectName] = ParseItem(projectName, parameters)
+        return True
 
     def __unpack(self, keys, vis):
         return { sub for key in keys if not(key in vis)
-                     for sub in (self.__unpack(self.shorts[key].parameters, vis.union({key}))
-                                 if key in self.shorts
+                     for sub in (self.__unpack(self.__shorts[key].parameters, vis.union({key}))
+                                 if key in self.__shorts
                                  else {key}) }

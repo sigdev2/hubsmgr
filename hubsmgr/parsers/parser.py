@@ -19,10 +19,13 @@ class Parser:
     def process(self, data, node):
         data = parserutils.parseSet(data)
         if len(data) > 0:
-            parameters = parserutils.parseKeywords(data, self.__props, self.__residue)
+            parameters = self.parseKeywords(data)
             if self.validate(parameters):
                 self.items[node] = ParseItem(node, parameters)
         return True
+
+    def parseKeywords(self, data):
+        return parserutils.parseKeywords(data, self.__props, self.__residue)
 
     def validate(self, parameters): # pylint: disable=unused-argument
         return True

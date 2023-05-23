@@ -32,7 +32,10 @@ class ProjectsParser(Parser):
         hubs = tuple(self.__hubs[key] for key in hubsKeys if key in self.__hubs)
         if len(hubs) > 0:
             parameters[r'hubs'] = hubs
-            self.items[node] = ParseItem(node, parameters)
+            auth, name, target = parserutils.parseProjectNameParts(node)
+            parameters[r'auth'] = auth
+            parameters[r'target'] = target
+            self.items[name] = ParseItem(name, parameters)
         return True
 
     def __unpack(self, keys, vis):

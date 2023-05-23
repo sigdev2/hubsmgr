@@ -42,7 +42,7 @@ class ZipArchive:
 
     @staticmethod
     def isSupported(path):
-        return pathutils.checkSuffix(path, r'zip')
+        return pathutils.checkFullSuffix(path, r'zip')
 
     @staticmethod
     def createInfo(path):
@@ -60,7 +60,7 @@ class ZipArchive:
 
     @staticmethod
     def open(path, mode):
-        if pathutils.checkSuffix(path, r'.zip'):
+        if pathutils.checkFullSuffix(path, r'.zip'):
             return zipfile.ZipFile(path, mode)
         return None
 

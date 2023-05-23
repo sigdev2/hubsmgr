@@ -45,7 +45,7 @@ class TarArchive:
     @staticmethod
     def isSupported(path):
         for ext in TarArchive.ARCHIVE_FORMATS:
-            if pathutils.checkSuffix(path, ext):
+            if pathutils.checkFullSuffix(path, ext):
                 return True
         return False
 
@@ -65,15 +65,15 @@ class TarArchive:
 
     @staticmethod
     def open(path, mode):
-        if pathutils.checkSuffix(path, '.tar'):
+        if pathutils.checkFullSuffix(path, r'.tar'):
             return (tarfile.open(path, mode + r':'),)
-        if pathutils.checkSuffix(path, r'.tar.gz') or pathutils.checkSuffix(path, r'.tgz'):
+        if pathutils.checkFullSuffix(path, r'.tar.gz') or pathutils.checkFullSuffix(path, r'.tgz'):
             return (tarfile.open(path, mode + r':gz'),)
-        if pathutils.checkSuffix(path, r'.tar.bz2') or pathutils.checkSuffix(path, r'.tar.bzip2') or \
-           pathutils.checkSuffix(path, r'.tbz2') or pathutils.checkSuffix(path, r'.tbzip2'):
+        if pathutils.checkFullSuffix(path, r'.tar.bz2') or pathutils.checkFullSuffix(path, r'.tar.bzip2') or \
+           pathutils.checkFullSuffix(path, r'.tbz2') or pathutils.checkFullSuffix(path, r'.tbzip2'):
             return (tarfile.open(path, mode + r':bz2'),)
-        if pathutils.checkSuffix(path, r'.tar.lzma') or pathutils.checkSuffix(path, r'.tar.xz') or \
-           pathutils.checkSuffix(path, r'.txz') or pathutils.checkSuffix(path, r'.tlzma'):
+        if pathutils.checkFullSuffix(path, r'.tar.lzma') or pathutils.checkFullSuffix(path, r'.tar.xz') or \
+           pathutils.checkFullSuffix(path, r'.txz') or pathutils.checkFullSuffix(path, r'.tlzma'):
             xz_file = lzma.LZMAFile(path, mode=mode)
             return (tarfile.open(mode=mode, fileobj=xz_file), xz_file)
         return None

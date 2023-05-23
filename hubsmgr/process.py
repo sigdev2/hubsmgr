@@ -20,9 +20,10 @@ class ProjectProcessor:
         isAutocommit = r'autocommit' in sync
         isPull, isPush = syncutils.getPulPushOptions(sync)
 
-        # todo: project parameters like zip pass or local zip init
-        projectPath = self.__root / project.id
+        projectPath = self.__root / project.parameters[r'target']
+        projectPath = projectPath.resolve()
         hubs = project.parameters[r'hubs']
+        auth = project.parameters[r'auth']
 
         self.__out(project.id + r' :' + \
                    (r' autocommit' if isAutocommit else r'') + \
@@ -36,7 +37,8 @@ class ProjectProcessor:
             paths = pathutils.unpackSyncPaths(hub.parameters[r'paths'], project.id, self.__root)
             isHubPull, isHubPush = syncutils.getPulPushOptions(opts)
             provider = self.__createProvider(next(iter(hub.parameters[r'providers'])),
-                                             projectPath, hub.id, paths, r'managed' in opts)
+                                             projectPath, hub.id, paths, r'managed' in opts,
+                                             auth)
             if provider is not None:
                 command = syncutils.PROVIDER_CMDS.create(
                     (True, isAutocommit, isPull, isPush),
@@ -49,7 +51,7 @@ class ProjectProcessor:
 
         return syncutils.PROVIDER_CMDS.exec((project.parameters[r'options'],))
 
-    def __createProvider(self, name, path, remoteName, remotes, managed):
+    def __createProvider(self, name, path, remoteName, remotes, managed, auth):
         provider = None
         if name == r'pysync':
             provider = PythonSync(path, lambda m, _: self.__out(m, r'PYSYNC'))
@@ -58,6 +60,7 @@ class ProjectProcessor:
         if provider is not None:
             if archiveutils.isSupportedArchive(path):
                 self.__out(r'Is archived provider for remote ' + remoteName, r'ARCHIVED')
+                #todo: use auth for archive
                 provider = ArchiveProxy(provider)
             if managed:
                 self.__out(r'Is managed provider for remote ' + remoteName, r'MANAGED')

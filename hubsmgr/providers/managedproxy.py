@@ -10,37 +10,47 @@ class ManagedProxy(ProviderProxy):
 
     def __init__(self, source):
         self.__managed = {}
-        super(ManagedProxy, self).__init__(source)
+        super().__init__(source)
+
+    def __getattr__(self, name):
+        if name == r'__managed':
+            return object.__getattribute__(self, name)
+        return super().__getattribute__(name)
+
+    def __setattr__(self, name, value):
+        if name == r'__managed':
+            return object.__setattr__(self, name, value)
+        return super().__setattr__(name, value)
 
     def isPullSupport(self):
         for providers in self.__managed.values():
             for provider in providers:
-                if provider.isPushSupport():
+                if provider.isValid() and provider.isPushSupport():
                     return True
         return False
 
     def isPushSupport(self):
         for providers in self.__managed.values():
             for provider in providers:
-                if provider.isPullSupport():
+                if provider.isValid() and provider.isPullSupport():
                     return True
         return False
 
     def isCommitSupport(self):
-        if self.source.isCommitSupport():
+        if self.source.isValid() and self.source.isCommitSupport():
             return True
         for providers in self.__managed.values():
             for provider in providers:
-                if provider.isCommitSupport():
+                if provider.isValid() and provider.isCommitSupport():
                     return True
         return False
 
     def isCloneSupport(self):
-        if self.source.isCloneSupport():
+        if self.source.isValid() and self.source.isCloneSupport():
             return True
         for providers in self.__managed.values():
             for provider in providers:
-                if provider.isCloneSupport():
+                if provider.isValid() and provider.isCloneSupport():
                     return True
         return False
 
@@ -61,27 +71,27 @@ class ManagedProxy(ProviderProxy):
         return True
 
     def addRemotes(self, remoteName, remotes):
-        self.source.source.addRemotes(remoteName, remotes)
+        ProviderProxy.addRemotes(self, remoteName, remotes)
         if not remoteName in self.__managed:
             self.__managed[remoteName] = []
-        baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
-        providerClass = type(baseProvider)
+        providerClass = self.baseType()
         for remote in remotes:
-            provider = providerClass(remote, baseProvider.out)
-            if archiveutils.isSupportedArchive(baseProvider.path):
+            provider = providerClass(remote, self.out)
+            if archiveutils.isSupportedArchive(remote):
+                #todo: auth for archives
                 provider = ArchiveProxy(provider)
             self.__managed[remoteName].append(provider)
-            provider.addRemotes(remoteName, [baseProvider.path])
+            provider.addRemotes(remoteName, { self.path })
 
     def commit(self, message, addAll):
-        if self.source.isCommitSupport():
+        if self.source.isValid() and self.source.isCommitSupport():
             e = self.source.commit(message, addAll)
             if e != 0:
                 return e
 
         for providers in self.__managed.values():
             for provider in providers:
-                if provider.isCommitSupport():
+                if provider.isValid() and provider.isCommitSupport():
                     e = provider.commit(message, addAll)
                     if e != 0:
                         return e
@@ -90,7 +100,7 @@ class ManagedProxy(ProviderProxy):
     def pull(self, remote, opts):
         if remote in self.__managed:
             for provider in self.__managed[remote]:
-                if provider.isPushSupport():
+                if provider.isValid() and provider.isPushSupport():
                     e = provider.push(remote, opts)
                     if e != 0:
                         return e
@@ -99,7 +109,7 @@ class ManagedProxy(ProviderProxy):
     def push(self, remote, opts):
         if remote in self.__managed:
             for provider in self.__managed[remote]:
-                if provider.isPullSupport():
+                if provider.isValid() and provider.isPullSupport():
                     e = provider.pull(remote, opts)
                     if e != 0:
                         return e
@@ -108,7 +118,7 @@ class ManagedProxy(ProviderProxy):
     def clone(self, remote, opts):
         if remote in self.__managed:
             if not self.source.isExist():
-                if not self.source.isCloneSupport():
+                if not self.source.isValid() or not self.source.isCloneSupport():
                     return -1
 
                 hasRemote = False
@@ -125,7 +135,7 @@ class ManagedProxy(ProviderProxy):
                     return e
 
             for provider in self.__managed[remote]:
-                if not provider.isExist() and provider.isCloneSupport():
+                if not provider.isExist() and provider.isValid() and provider.isCloneSupport():
                     e = provider.clone(remote, opts)
                     if e != 0:
                         return e

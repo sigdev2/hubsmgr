@@ -18,7 +18,7 @@ class ArchiveProxy(ProviderProxy):
         self.__packed = source
         baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
         providerClass = type(baseProvider)
-        super(ArchiveProxy, self).__init__(providerClass(self.__tempdir, baseProvider.out))
+        super().__init__(providerClass(self.__tempdir, baseProvider.out))
 
     def isCommitSupport(self):
         return False
@@ -34,20 +34,20 @@ class ArchiveProxy(ProviderProxy):
 
     def pull(self, remote, opts):
         self.__unpack()
-        e = super(ArchiveProxy, self).pull(remote, opts)
+        e = ProviderProxy.pull(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()
 
     def push(self, remote, opts):
         self.__unpack()
-        e = super(ArchiveProxy, self).push(remote, opts)
+        e = ProviderProxy.push(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()
 
     def clone(self, remote, opts):
-        e = super(ArchiveProxy, self).clone(remote, opts)
+        e = ProviderProxy.clone(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()

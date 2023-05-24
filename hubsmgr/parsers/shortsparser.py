@@ -11,4 +11,4 @@ class ShortsParser(Parser):
     SHORTS_CHECK_RX = re.compile(r'^/shorts/[A-z_\-0-9]+')
 
     def __init__(self):
-        super(ShortsParser, self).__init__({}, r'short', ShortsParser.SHORTS_CHECK_RX)
+        super().__init__({}, r'short', ShortsParser.SHORTS_CHECK_RX)

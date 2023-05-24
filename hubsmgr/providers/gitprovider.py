@@ -18,7 +18,7 @@ class GitProvider(Provider):
 
     def __init__(self, path, out = None):
         self.__git = git.Git(path, self.run, out)
-        super(GitProvider, self).__init__(path, out)
+        super().__init__(path, out)
 
     def isPullSupport(self):
         return True

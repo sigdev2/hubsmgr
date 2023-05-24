@@ -15,7 +15,7 @@ class ProjectsParser(Parser):
     def __init__(self, shorts, hubs):
         self.__shorts = shorts
         self.__hubs = hubs
-        super(ProjectsParser, self).__init__(
+        super().__init__(
             { r'sync': (r'pull', r'push', r'freeze', r'autocommit'),
               r'hubs' : self.__hubs.keys() },
             r'options', ProjectsParser.PROJECT_CHECK_RX)

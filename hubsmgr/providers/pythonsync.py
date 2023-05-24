@@ -13,7 +13,7 @@ class PythonSync(Provider):
 
     def __init__(self, path, out = None):
         self.__remotes = {}
-        super(PythonSync, self).__init__(path, out)
+        super().__init__(path, out)
 
     def isPullSupport(self):
         return True
@@ -21,8 +21,11 @@ class PythonSync(Provider):
     def isPushSupport(self):
         return True
 
-    def isCloneSupport(self):
+    def isCommitSupport(self):
         return False
+
+    def isCloneSupport(self):
+        return True
 
     def isValid(self):
         return not pathutils.isUrl(self.path)

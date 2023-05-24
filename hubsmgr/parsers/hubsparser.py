@@ -11,7 +11,7 @@ class HubsParser(Parser):
     HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_\-0-9]+')
 
     def __init__(self):
-        super(HubsParser, self).__init__({ r'providers': (r'git', r'pysync'),
+        super().__init__({ r'providers': (r'git', r'pysync'),
                                            r'options': (r'pull', r'push', r'freeze', r'managed') },
                                          r'paths', HubsParser.HUBS_CHECK_RX)
 

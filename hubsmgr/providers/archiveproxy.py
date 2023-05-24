@@ -61,12 +61,17 @@ class ArchiveProxy(ProviderProxy):
         return self.__pack()
 
     def __pack(self):
-        dirmtime = max(file.stat().st_mtime for file in self.source.path.glob(r'**/*'))
-        archivemtime = self.__packed.path.stat().st_mtime
-        if archivemtime == dirmtime:
-            return 0
-        if archivemtime > dirmtime:
-            return -1
+        if self.__packed.path.exists():
+            dirmtime = max(file.stat().st_mtime for file in self.source.path.glob(r'**/*'))
+            archivemtime = self.__packed.path.stat().st_mtime
+            if archivemtime == dirmtime:
+                return 0
+            if archivemtime > dirmtime:
+                return -1
+        else:
+            parentDir = self.__packed.path.parent
+            if not parentDir.exists() or not parentDir.is_dir():
+                parentDir.mkdir(parents=True)
 
         self.source.out(r'Pack ' + str(self.source.path) + r' -> ' + str(self.__packed.path), False)
         with tempfile.TemporaryFile() as file:
@@ -75,8 +80,7 @@ class ArchiveProxy(ProviderProxy):
             if self.__packed.path.exists():
                 self.__packed.path.unlink()
             shutil.copy(file, self.__packed.path)
-            return 0
-        return -1
+        return 0
 
     def __unpack(self):
         if not self.isExist() or self.__unpacked:

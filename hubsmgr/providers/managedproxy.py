@@ -13,12 +13,12 @@ class ManagedProxy(ProviderProxy):
         super().__init__(source)
 
     def __getattr__(self, name):
-        if name == r'__managed':
+        if name in ManagedProxy.__slots__:
             return object.__getattribute__(self, name)
         return super().__getattribute__(name)
 
     def __setattr__(self, name, value):
-        if name == r'__managed':
+        if name in ManagedProxy.__slots__:
             return object.__setattr__(self, name, value)
         return super().__setattr__(name, value)
 

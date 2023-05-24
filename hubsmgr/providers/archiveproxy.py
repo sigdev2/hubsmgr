@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
 import pathlib
 import shutil
 import tempfile
@@ -16,9 +15,18 @@ class ArchiveProxy(ProviderProxy):
         self.__unpacked = False
         self.__tempdir = tempfile.TemporaryDirectory()
         self.__packed = source
-        baseProvider = self.source.source if isinstance(self.source, ProviderProxy) else self.source
-        providerClass = type(baseProvider)
-        super().__init__(providerClass(self.__tempdir, baseProvider.out))
+        providerClass = self.baseType()
+        super().__init__(providerClass(pathlib.Path(self.__tempdir), self.out))
+
+    def __getattr__(self, name):
+        if name in ArchiveProxy.__slots__:
+            return object.__getattribute__(self, name)
+        return super().__getattribute__(name)
+
+    def __setattr__(self, name, value):
+        if name in ArchiveProxy.__slots__:
+            return object.__setattr__(self, name, value)
+        return super().__setattr__(name, value)
 
     def isCommitSupport(self):
         return False
@@ -27,7 +35,7 @@ class ArchiveProxy(ProviderProxy):
         return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isValid()
 
     def isExist(self):
-        return os.path.exists(self.__packed.path) and os.path.isfile(self.__packed.path)
+        return self.__packed.path.is_exists() and self.__packed.path.is_file()
 
     def commit(self, message, addAll): # pylint: disable=unused-argument
         return -1
@@ -53,30 +61,27 @@ class ArchiveProxy(ProviderProxy):
         return self.__pack()
 
     def __pack(self):
-        tempdir = pathlib.Path(self.__tempdir)
-        dirmtime = max([tempdir.joinpath(root).joinpath(f).stat().st_mtime
-                        for root, _, files in os.walk(tempdir)
-                        for f in files])
-        archivemtime = pathlib.Path(self.__packed.path).stat().st_mtime
+        dirmtime = max(file.stat().st_mtime for file in self.source.path.glob(r'**/*'))
+        archivemtime = self.__packed.path.stat().st_mtime
         if archivemtime == dirmtime:
             return 0
         if archivemtime > dirmtime:
             return -1
 
-        self.source.out(r'Pack ' + str(self.__tempdir) + r' -> ' + str(self.__packed.path), False)
-        file = tempfile.TemporaryFile()
-        archive = arhive.Archive(file)
-        archive.packall(self.__tempdir)
-        if os.path.exists(self.__packed.path):
-            os.remove(self.__packed.path)
-        shutil.copy(file, self.__packed.path)
-        return 0
+        self.source.out(r'Pack ' + str(self.source.path) + r' -> ' + str(self.__packed.path), False)
+        with tempfile.TemporaryFile() as file:
+            archive = arhive.Archive(file)
+            archive.packall(self.source.path)
+            if self.__packed.path.exists():
+                self.__packed.path.unlink()
+            shutil.copy(file, self.__packed.path)
+            return 0
+        return -1
 
     def __unpack(self):
         if not self.isExist() or self.__unpacked:
             return
-        # todo: reading archive without unpacking or unpack in memory (is acceptable size)
-        self.source.out(r'Unpack ' + str(self.__packed.path) + r' -> ' + str(self.__tempdir), False)
+        self.source.out(r'Unpack ' + str(self.__packed.path) + r' -> ' + str(self.source.path), False)
         archive = arhive.Archive(self.__packed.path)
-        archive.unpackall(self.__tempdir)
+        archive.unpackall(self.source.path)
         self.__unpacked = True

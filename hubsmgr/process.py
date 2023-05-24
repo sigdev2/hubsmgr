@@ -22,6 +22,7 @@ class ProjectProcessor:
 
         projectPath = self.__root / project.parameters[r'target']
         projectPath = projectPath.resolve()
+
         hubs = project.parameters[r'hubs']
         auth = project.parameters[r'auth']
 

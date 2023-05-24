@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import subprocess
-import os
 
 class Provider:
     __slots__ = (r'path', r'out', r'remotes')
@@ -28,9 +27,9 @@ class Provider:
         return False
 
     def isExist(self):
-        return os.path.exists(self.path) and \
-               os.path.isdir(self.path) and \
-               len(os.listdir(self.path)) > 0
+        return self.path.exists() and \
+               self.path.isdir() and \
+               any(self.path.iterdir())
 
     def addRemotes(self, remoteName, remotes):
         if not remoteName in self.remotes:

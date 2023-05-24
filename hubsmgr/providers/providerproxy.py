@@ -7,35 +7,12 @@ class ProviderProxy:
     def __init__(self, source):
         self.source = source
 
-    def isPullSupport(self):
-        return self.source.isPullSupport()
+    def __getattr__(self, name):
+        if name == r'source':
+            return object.__getattribute__(self, name)
+        return self.source.__getattribute__(name)
 
-    def isPushSupport(self):
-        return self.source.isPushSupport()
-
-    def isCommitSupport(self):
-        return self.source.isCommitSupport()
-
-    def isCloneSupport(self):
-        return self.source.isCloneSupport()
-
-    def isValid(self):
-        return self.source.isValid()
-
-    def isExist(self):
-        return self.source.isExist()
-
-    def addRemotes(self, remoteName, remotes):
-        self.source.addRemotes(remoteName, remotes)
-
-    def commit(self, message, addAll):
-        return self.source.commit(message, addAll)
-
-    def pull(self, remote, opts):
-        return self.source.pull(remote, opts)
-
-    def push(self, remote, opts):
-        return self.source.push(remote, opts)
-
-    def clone(self, remote, opts):
-        return self.source.clone(remote, opts)
+    def __setattr__(self, name, value):
+        if name == r'source':
+            return object.__setattr__(self, name, value)
+        return self.source.__setattr__(name, value)

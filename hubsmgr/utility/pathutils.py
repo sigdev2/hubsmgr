@@ -43,7 +43,7 @@ def unpackSyncPaths(paths, target, relative):
     for path in paths:
         path = path.strip()
 
-        match = PATH_RX.search(str(path))
+        match = PATH_RX.search(path)
         if not match is None:
             protocol = match.group(1)
             if protocol.endswith(r':/'):

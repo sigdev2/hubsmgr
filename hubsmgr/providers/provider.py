@@ -28,7 +28,7 @@ class Provider:
 
     def isExist(self):
         return self.path.exists() and \
-               self.path.isdir() and \
+               self.path.is_dir() and \
                any(self.path.iterdir())
 
     def addRemotes(self, remoteName, remotes):

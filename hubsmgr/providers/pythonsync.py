@@ -31,7 +31,7 @@ class PythonSync(Provider):
         if not remoteName in self.__remotes:
             self.__remotes[remoteName] = []
         for remote in remotes:
-            if not pathutils.isUrl(remote):
+            if isinstance(remote, pathlib.Path) and remote.exists() and remote.is_dir():
                 self.__remotes[remoteName].append(remote)
 
     def commit(self, message, addAll): # pylint: disable=unused-argument
@@ -41,24 +41,24 @@ class PythonSync(Provider):
         if not remote in self.__remotes:
             return -1
         for path in self.__remotes[remote]:
-            self.__comparePath(pathlib.Path(path), pathlib.Path(self.path), remote, opts)
+            self.__comparePath(path, self.path, remote, opts)
         return 0
 
     def push(self, remote, opts):
         if not remote in self.__remotes:
             return -1
         for path in self.__remotes[remote]:
-            self.__comparePath(pathlib.Path(self.path), pathlib.Path(path), remote, opts)
+            self.__comparePath(self.path, path, remote, opts)
         return 0
 
     def clone(self, remote, opts):
         if not remote in self.__remotes:
             return -1
+        if not self.path.exists() or not self.path.is_dir():
+            self.path.mkdir(parents=True)
         for path in self.__remotes[remote]:
-            source_path = pathlib.Path(path)
-            if source_path.exists() and source_path.is_dir():
-                self.__copyTree(source_path, pathlib.Path(self.path), opts)
-                return 0
+            self.__copyTree(path, self.path, opts)
+            return 0
         return -1
 
     def __copyWithProgress(self, src, dst, *args, follow_symlinks=True):
@@ -77,7 +77,7 @@ class PythonSync(Provider):
                     if chunck1 is None or chunck2 is None:
                         return chunck1 == chunck2
                     if chunck1 != chunck2:
-                        return False
+                        break
         return False
 
     def __comparePath(self, source_path, target_path, remoteName, opts):

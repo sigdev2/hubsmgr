@@ -70,7 +70,7 @@ class ArchiveProxy(ProviderProxy):
 
         self.source.out(r'Pack ' + str(self.source.path) + r' -> ' + str(self.__packed.path), False)
         with tempfile.TemporaryFile() as file:
-            archive = arhive.Archive(file)
+            archive = arhive.Archive(pathlib.Path(file))
             archive.packall(self.source.path)
             if self.__packed.path.exists():
                 self.__packed.path.unlink()

@@ -17,7 +17,6 @@ build/hubsmgr/localpycs/struct.pyc
 hubsmgr/parsers/__pycache__/specyaml.cpython-310.pyc
 hubsmgr/utility/__pycache__/utils.cpython-310.pyc
 hubsmgr/parsers/__pycache__/shortsparser.cpython-310.pyc
-test/gittest/freetags
 hubsmgr/__pycache__/process.cpython-310.pyc
 hubsmgr/__pycache__/synccommands.cpython-310.pyc
 hubsmgr/gitutils/__pycache__/git.cpython-310.pyc
@@ -40,11 +39,15 @@ hubsmgr/utility/__pycache__/memoized_method.cpython-310.pyc
 hubsmgr/utility/__pycache__/pathutils.cpython-310.pyc
 hubsmgr/utility/__pycache__/tararchive.cpython-310.pyc
 hubsmgr/utility/__pycache__/ziparchive.cpython-310.pyc
-test/hub/pysync
 hubsmgr/utility/__pycache__/git.cpython-310.pyc
 hubsmgr/utility/__pycache__/gitoptions.cpython-310.pyc
 hubsmgr/utility/__pycache__/parserutils.cpython-310.pyc
 hubsmgr/utility/__pycache__/sha1utils.cpython-310.pyc
 hubsmgr/utility/__pycache__/syncutils.cpython-310.pyc
 hubsmgr/parsers/__pycache__/parser.cpython-310.pyc
-test/gittest/freetags
+test/gittest
+test/managed_target
+test/manyhubs1
+test/manyhubs2
+test/manyhubs3
+test/hub

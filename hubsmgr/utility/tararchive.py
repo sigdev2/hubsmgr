@@ -24,20 +24,20 @@ class TarArchive:
         if not archive is None:
             for member in archive[0].getmembers():
                 archive[0].extract(member, toPath)
-                name = os.path.join(toPath, member.name)
+                name = toPath / member.name
                 os.utime(name, (member.mtime, member.mtime))
             map(lambda a: a.close(), archive)
 
     def packall(self, fromPath):
         archive = TarArchive.open(self.__path, r'w')
         if not archive is None:
-            for root, dirs, files in os.walk(fromPath):
-                for file in files:
-                    in_fname = os.path.join(root, file)
-                    info = TarArchive.createFullInfo(in_fname, fromPath)
-                    with open(in_fname, r'rb') as fobj:
+            for child in fromPath.rglob(r'*'):
+                if child.is_file():
+                    info = TarArchive.createFullInfo(child, fromPath)
+                    with open(child, r'rb') as fobj:
                         TarArchive.addFile(archive[0], info, fobj)
-                for emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
+                elif child.is_dir():
+                    emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
                     info = TarArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
                     TarArchive.addEmptyDir(archive[0], info)
             map(lambda a: a.close(), archive)

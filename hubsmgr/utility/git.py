@@ -268,8 +268,7 @@ class Git:
         return self.run(cmd, self.__out)
 
     def clone(self, remoteName, url, bare, getCommands = False):
-        p = pathlib.Path(self.__path)
-        name = p.parts[-1]
+        name = self.__path.parts[-1]
         opts = r'--bare' if bare else r''
         opts += r' -o ' + remoteName
         opts += r' ' + url
@@ -277,10 +276,13 @@ class Git:
 
         def cmd():
             self.clearAllCahce()
+            parentDir = self.__path.parent
+            if not parentDir.exists() or not parentDir.is_dir():
+                parentDir.mkdir(parents=True)
             return r'git clone' + opts
         if getCommands:
             return [cmd]
-        return self.run(cmd, self.__out, p.parent)
+        return self.run(cmd, self.__out, self.__path.parent)
 
     def commit(self, message, addAll, getCommands = False):
         cmds = []

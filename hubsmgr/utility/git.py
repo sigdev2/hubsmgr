@@ -267,11 +267,10 @@ class Git:
         return self.run(cmd, self.__out)
 
     def clone(self, remoteName, url, bare, getCommands = False):
-        name = self.__path.parts[-1]
         opts = r'--bare' if bare else r''
         opts += r' -o ' + remoteName
         opts += r' ' + url
-        opts += r' .' + os.sep + name + os.sep
+        opts += r' ' + str(self.__path)
 
         def cmd():
             self.clearAllCahce()

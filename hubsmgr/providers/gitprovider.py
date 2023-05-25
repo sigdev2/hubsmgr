@@ -48,8 +48,10 @@ class GitProvider(Provider):
         return self.__git.commit(message, addAll)
 
     def pull(self, remote, opts):
+        if not remote in self.remotes:
+            return -1
         storedContext = CheckoutContext()
-        for url in self.remotes:
+        for url in self.remotes[remote]:
             self.__git.addRemote(remote, url)
             opts = gitoptions.GitOptions(remote, opts, self.__git)
             if not self.__git.isRepository(opts.bare):
@@ -143,7 +145,9 @@ class GitProvider(Provider):
         return 0
 
     def push(self, remote, opts):
-        for url in self.remotes:
+        if not remote in self.remotes:
+            return -1
+        for url in self.remotes[remote]:
             self.__git.addRemote(remote, url)
             opts = gitoptions.GitOptions(remote, opts, self.__git)
             if not self.__git.isRepository(opts.bare):
@@ -168,15 +172,17 @@ class GitProvider(Provider):
 
     def clone(self, remote, opts):
         e = -1
-        for url in self.remotes:
+        if not remote in self.remotes:
+            return e
+        for url in self.remotes[remote]:
             opts = gitoptions.GitOptions(remote, opts, self.__git)
             e = self.__git.clone(remote, url, opts.bare)
             if e == 0:
                 break
         if e != 0:
-            return 0
+            return e
 
-        for url in self.remotes:
+        for url in self.remotes[remote]:
             self.__git.addRemote(remote, url)
 
         return 0

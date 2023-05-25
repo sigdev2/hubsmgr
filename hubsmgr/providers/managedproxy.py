@@ -15,12 +15,12 @@ class ManagedProxy(ProviderProxy):
     def __getattr__(self, name):
         if name in ManagedProxy.__slots__:
             return object.__getattribute__(self, name)
-        return super().__getattribute__(name)
+        return ProviderProxy.__getattr__(self, name)
 
     def __setattr__(self, name, value):
         if name in ManagedProxy.__slots__:
             return object.__setattr__(self, name, value)
-        return super().__setattr__(name, value)
+        return ProviderProxy.__setattr__(self, name, value)
 
     def isPullSupport(self):
         for providers in self.__managed.values():
@@ -37,7 +37,7 @@ class ManagedProxy(ProviderProxy):
         return False
 
     def isCommitSupport(self):
-        if self.source.isValid() and self.source.isCommitSupport():
+        if ProviderProxy.isValid(self) and ProviderProxy.isCommitSupport(self):
             return True
         for providers in self.__managed.values():
             for provider in providers:
@@ -46,7 +46,7 @@ class ManagedProxy(ProviderProxy):
         return False
 
     def isCloneSupport(self):
-        if self.source.isValid() and self.source.isCloneSupport():
+        if ProviderProxy.isValid(self) and ProviderProxy.isCloneSupport(self):
             return True
         for providers in self.__managed.values():
             for provider in providers:
@@ -62,7 +62,7 @@ class ManagedProxy(ProviderProxy):
         return False
 
     def isExist(self):
-        if not self.source.isExist():
+        if not ProviderProxy.isExist(self):
             return False
         for providers in self.__managed.values():
             for provider in providers:
@@ -84,8 +84,8 @@ class ManagedProxy(ProviderProxy):
             provider.addRemotes(remoteName, { self.path })
 
     def commit(self, message, addAll):
-        if self.source.isValid() and self.source.isCommitSupport():
-            e = self.source.commit(message, addAll)
+        if ProviderProxy.isValid(self) and ProviderProxy.isCommitSupport(self):
+            e = ProviderProxy.commit(self, message, addAll)
             if e != 0:
                 return e
 
@@ -117,8 +117,8 @@ class ManagedProxy(ProviderProxy):
 
     def clone(self, remote, opts):
         if remote in self.__managed:
-            if not self.source.isExist():
-                if not self.source.isValid() or not self.source.isCloneSupport():
+            if not ProviderProxy.isExist(self):
+                if not ProviderProxy.isValid(self) or not ProviderProxy.isCloneSupport(self):
                     return -1
 
                 hasRemote = False
@@ -130,7 +130,7 @@ class ManagedProxy(ProviderProxy):
                 if not hasRemote:
                     return -1
 
-                e = self.source.clone(remote, opts)
+                e = ProviderProxy.clone(self, remote, opts)
                 if e != 0:
                     return e
 

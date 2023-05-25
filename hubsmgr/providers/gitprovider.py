@@ -119,7 +119,7 @@ class GitProvider(Provider):
                                      else list(opts.branches)[0]
                     checkoutRevision = opts.getRealBranchRevision(checkoutBranch)
                     if (checkoutRevision is None) or (newRevision != checkoutRevision):
-                        return self.__git.checkout(remote, branch, True)
+                        return self.__git.checkout(remote, checkoutBranch, True)
                     return r''
 
                 # restore last revision

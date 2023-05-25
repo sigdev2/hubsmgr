@@ -71,13 +71,13 @@ class PythonSync(Provider):
     def __compare2file(self, file1, file2):
         with file1.open(r'rb') as f1:
             with file2.open(r'rb') as f2:
-                f1It = iter(lambda : f1.read(5120), r'')
-                f2It = iter(lambda : f2.read(5120), r'')
+                f1It = iter(f1.read, 5120)
+                f2It = iter(f2.read, 5120)
 
                 while True:
                     chunck1 = next(f1It, None)
                     chunck2 = next(f2It, None)
-                    if chunck1 is None or chunck2 is None:
+                    if not chunck1 or not chunck2:
                         return chunck1 == chunck2
                     if chunck1 != chunck2:
                         break

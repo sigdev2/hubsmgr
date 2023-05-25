@@ -191,12 +191,12 @@ class Git:
             self.clearRemotesObjectsCache()
             self.clearObjectsCache()
         if not self.hasRemote(remoteName):
-            ec = self.run(r'git remote add ' + remoteName + r' ' + url, self.__out)
+            ec = self.run(r'git remote add ' + remoteName + r' ' + str(url), self.__out)
             if ec != 0:
                 return ec
             clearCahche()
-        elif self.getRemoteUrl(remoteName) != url:
-            ec = self.run(r'git remote set-url ' + remoteName + r' ' + url, self.__out)
+        elif self.getRemoteUrl(remoteName) != str(url):
+            ec = self.run(r'git remote set-url ' + remoteName + r' ' + str(url), self.__out)
             if ec != 0:
                 return ec
             clearCahche()
@@ -269,7 +269,7 @@ class Git:
     def clone(self, remoteName, url, bare, getCommands = False):
         opts = r'--bare' if bare else r''
         opts += r' -o ' + remoteName
-        opts += r' ' + url
+        opts += r' ' + str(url)
         opts += r' ' + str(self.__path)
 
         def cmd():

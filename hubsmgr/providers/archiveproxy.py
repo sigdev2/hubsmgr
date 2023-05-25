@@ -32,7 +32,7 @@ class ArchiveProxy(ProviderProxy):
         return False
 
     def isValid(self):
-        return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isValid()
+        return archiveutils.isSupportedArchive(self.__packed.path) and ProviderProxy.isValid(self)
 
     def isExist(self):
         return self.__packed.path.is_exists() and self.__packed.path.is_file()
@@ -62,7 +62,7 @@ class ArchiveProxy(ProviderProxy):
 
     def __pack(self):
         if self.__packed.path.exists():
-            dirmtime = max((self.source.path / file).stat().st_mtime for file in self.source.path.rglob(r'*'))
+            dirmtime = max((self.path / file).stat().st_mtime for file in self.path.rglob(r'*'))
             archivemtime = self.__packed.path.stat().st_mtime
             if archivemtime == dirmtime:
                 return 0
@@ -73,10 +73,10 @@ class ArchiveProxy(ProviderProxy):
             if not parentDir.exists() or not parentDir.is_dir():
                 parentDir.mkdir(parents=True)
 
-        self.source.out(r'Pack ' + str(self.source.path) + r' -> ' + str(self.__packed.path), False)
+        self.out(r'Pack ' + str(self.path) + r' -> ' + str(self.__packed.path), False)
         with tempfile.TemporaryFile() as file:
             archive = arhive.Archive(pathlib.Path(file))
-            archive.packall(self.source.path)
+            archive.packall(self.path)
             if self.__packed.path.exists():
                 self.__packed.path.unlink()
             shutil.copy(file, self.__packed.path)
@@ -85,7 +85,7 @@ class ArchiveProxy(ProviderProxy):
     def __unpack(self):
         if not self.isExist() or self.__unpacked:
             return
-        self.source.out(r'Unpack ' + str(self.__packed.path) + r' -> ' + str(self.source.path), False)
+        self.out(r'Unpack ' + str(self.__packed.path) + r' -> ' + str(self.path), False)
         archive = arhive.Archive(self.__packed.path)
-        archive.unpackall(self.source.path)
+        archive.unpackall(self.path)
         self.__unpacked = True

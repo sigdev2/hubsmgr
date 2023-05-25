@@ -8,14 +8,7 @@ class ProviderProxy:
         self.source = source
 
     def __getattr__(self, name):
-        if name == r'source':
-            return object.__getattribute__(self, name)
         return self.source.__getattribute__(name)
-
-    def __setattr__(self, name, value):
-        if name == r'source':
-            return object.__setattr__(self, name, value)
-        return self.source.__setattr__(name, value)
 
     def baseType(self):
         if isinstance(self.source, ProviderProxy):

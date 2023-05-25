@@ -18,21 +18,11 @@ class ArchiveProxy(ProviderProxy):
         providerClass = self.baseType()
         super().__init__(providerClass(pathlib.Path(self.__tempdir), self.out))
 
-    def __getattr__(self, name):
-        if name in ArchiveProxy.__slots__:
-            return object.__getattribute__(self, name)
-        return super().__getattribute__(name)
-
-    def __setattr__(self, name, value):
-        if name in ArchiveProxy.__slots__:
-            return object.__setattr__(self, name, value)
-        return super().__setattr__(name, value)
-
     def isCommitSupport(self):
         return False
 
     def isValid(self):
-        return archiveutils.isSupportedArchive(self.__packed.path) and ProviderProxy.isValid(self)
+        return archiveutils.isSupportedArchive(self.__packed.path) and self.source.isValid(self)
 
     def isExist(self):
         return self.__packed.path.is_exists() and self.__packed.path.is_file()
@@ -42,20 +32,20 @@ class ArchiveProxy(ProviderProxy):
 
     def pull(self, remote, opts):
         self.__unpack()
-        e = ProviderProxy.pull(self, remote, opts)
+        e = self.source.pull(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()
 
     def push(self, remote, opts):
         self.__unpack()
-        e = ProviderProxy.push(self, remote, opts)
+        e = self.source.push(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()
 
     def clone(self, remote, opts):
-        e = ProviderProxy.clone(self, remote, opts)
+        e = self.source.clone(self, remote, opts)
         if e != 0:
             return e
         return self.__pack()

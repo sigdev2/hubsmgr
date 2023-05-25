@@ -68,7 +68,7 @@ def yamlpaths(path):
     paths = []
     path = path.resolve()
     if path.is_dir():
-        paths = [f for ext in (r'*.yaml', r'*.yml') for f in path.glob(ext)]
+        paths = [path / f for ext in (r'*.yaml', r'*.yml') for f in path.glob(ext)]
     elif path.is_file():
         paths.append(path)
     return paths

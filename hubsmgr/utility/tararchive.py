@@ -36,9 +36,8 @@ class TarArchive:
                     info = TarArchive.createFullInfo(child, fromPath)
                     with open(child, r'rb') as fobj:
                         TarArchive.addFile(archive[0], info, fobj)
-                elif child.is_dir():
-                    emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
-                    info = TarArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
+                elif child.is_dir() and not any(child.iterdir()):
+                    info = TarArchive.createFullInfo(child, fromPath)
                     TarArchive.addEmptyDir(archive[0], info)
             map(lambda a: a.close(), archive)
 
@@ -56,9 +55,9 @@ class TarArchive:
         return info
 
     @staticmethod
-    def createFullInfo(path, fromPath):
-        in_stat = os.stat(path)
-        info = TarArchive.createInfo(os.path.relpath(path, fromPath))
+    def createFullInfo(relpath, fromPath):
+        in_stat = (fromPath / relpath).stat()
+        info = TarArchive.createInfo(relpath)
         TarArchive.seiPermisions(info, os.stat.S_IMODE(in_stat.st_mode))
         TarArchive.seiMTime(info, in_stat.st_mtime)
         return info

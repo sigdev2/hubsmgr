@@ -62,7 +62,7 @@ class ArchiveProxy(ProviderProxy):
 
     def __pack(self):
         if self.__packed.path.exists():
-            dirmtime = max(file.stat().st_mtime for file in self.source.path.rglob(r'*'))
+            dirmtime = max((self.source.path / file).stat().st_mtime for file in self.source.path.rglob(r'*'))
             archivemtime = self.__packed.path.stat().st_mtime
             if archivemtime == dirmtime:
                 return 0

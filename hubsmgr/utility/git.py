@@ -29,13 +29,12 @@ class Git:
 
     @weak_lru(maxsize=None)
     def isRepository(self, bare):
-        root = pathlib.Path(self.__path)
-        if not root.exists():
+        if not self.__path.exists():
             return False
         for subdir in Git.GIT_SUBDIRS:
             if not bare:
                 subdir = Git.GIT_DIR + os.sep + subdir
-            gitSignPath = root / subdir
+            gitSignPath = self.__path / subdir
             if not gitSignPath.exists() or not gitSignPath.is_dir():
                 return False
         return True
@@ -45,7 +44,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getRevision(self, item):
         revision = [r'']
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     revision[0] = line
@@ -56,7 +55,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getObjectType(self, objhash):
         objtype = [r'']
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     objtype[0] = line
@@ -69,7 +68,7 @@ class Git:
     @weak_lru(maxsize=None)
     def hasChanges(self):
         hasChanges = [False]
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not(isCommand) and len(line) > 0:
                     hasChanges[0] = True
@@ -82,7 +81,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getCurrentBranch(self):
         current = [r'']
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     current[0] = line
@@ -93,7 +92,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getLocalBranches(self):
         branches = {}
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand and not r'HEAD detached' in line:
                     matches = Git.BRANCH_NAME_RX.finditer(line)
@@ -107,7 +106,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getRemoteBranches(self, remoteName):
         branches = {}
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     matches = Git.REMOTE_BRANCH_RX.finditer(line)
@@ -125,7 +124,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getLocalTags(self):
         tags = {}
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(tag, isCommand):
                 if not isCommand:
                     tags[tag] = self.getRevision(tag)
@@ -136,7 +135,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getRemoteTags(self, remote):
         tags = {}
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     matches = Git.REMOTE_TAG_RX.finditer(line)
@@ -152,7 +151,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getTagType(self, tag):
         objtype = [r'']
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not(isCommand) and line.startswith(r'type '):
                     objtype[0] = line[5:]
@@ -165,7 +164,7 @@ class Git:
     @weak_lru(maxsize=None)
     def getRemoteUrl(self, remoteName):
         url = [r'']
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def inserter(line, isCommand):
                 if not isCommand:
                     url[0] = line
@@ -176,7 +175,7 @@ class Git:
     @weak_lru(maxsize=None)
     def hasRemote(self, remoteName):
         hasRemote = [False]
-        if os.path.exists(self.__path):
+        if self.__path.exists():
             def checker(existRemote, isCommand):
                 if not isCommand:
                     hasRemote[0] = hasRemote[0] or existRemote == remoteName
@@ -185,7 +184,7 @@ class Git:
         return hasRemote[0]
 
     def addRemote(self, remoteName, url):
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         def clearCahche():
             self.clearRemotesCache()
@@ -212,7 +211,7 @@ class Git:
             return r'git checkout ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmd, self.__out)
 
@@ -223,7 +222,7 @@ class Git:
             return r'git fetch ' + remoteName + r' ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmd, self.__out)
 
@@ -236,7 +235,7 @@ class Git:
                    remoteName + r'/' + branch
         if getCommands:
             return [cmd]
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmd, self.__out)
 
@@ -249,7 +248,7 @@ class Git:
             cmds.append(self.merge(remoteName, branch, unrelated, True)[0])
         if getCommands:
             return cmds
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmds, self.__out)
 
@@ -263,7 +262,7 @@ class Git:
             return r'git push ' + remoteName + r' ' + tagOrBranch + r':' + tagOrBranch
         if getCommands:
             return [cmd]
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmd, self.__out)
 
@@ -301,7 +300,7 @@ class Git:
         cmds.append(cmdCommit)
         if getCommands:
             return cmds
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmds, self.__out)
 
@@ -311,7 +310,7 @@ class Git:
             return r'git submodule update --init --recursive --remote'
         if getCommands:
             return [cmd]
-        if not os.path.exists(self.__path):
+        if not self.__path.exists():
             return -1
         return self.run(cmd, self.__out)
 

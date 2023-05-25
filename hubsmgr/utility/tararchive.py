@@ -34,7 +34,7 @@ class TarArchive:
             for child in fromPath.rglob(r'*'):
                 if child.is_file():
                     info = TarArchive.createFullInfo(child, fromPath)
-                    with open(child, r'rb') as fobj:
+                    with open(fromPath / child, r'rb') as fobj:
                         TarArchive.addFile(archive[0], info, fobj)
                 elif child.is_dir() and not any(child.iterdir()):
                     info = TarArchive.createFullInfo(child, fromPath)

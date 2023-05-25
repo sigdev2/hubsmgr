@@ -18,7 +18,7 @@ class ZipArchive:
         if not archive is None:
             for f in archive.infolist():
                 name, date_time = f.filename, f.date_time
-                name = os.path.join(toPath, name)
+                name = toPath / name
                 with open(name, r'wb') as outFile:
                     with archive.open(f) as content:
                         outFile.write(content.read())
@@ -29,14 +29,13 @@ class ZipArchive:
     def packall(self, fromPath):
         archive = ZipArchive.open(self.__path, r'w')
         if not archive is None:
-            for root, dirs, files in os.walk(fromPath):
-                for file in files:
-                    in_fname = os.path.join(root, file)
-                    info = ZipArchive.createFullInfo(in_fname, fromPath)
-                    with open(in_fname, r'rb') as fobj:
+            for child in fromPath.rglob(r'*'):
+                if child.is_file():
+                    info = ZipArchive.createFullInfo(child, fromPath)
+                    with open(fromPath / child, r'rb') as fobj:
                         ZipArchive.addFile(archive, info, fobj)
-                for emptydir in [dir for dir in dirs if os.listdir(os.path.join(root, dir)) == []]:
-                    info = ZipArchive.createFullInfo(os.path.join(root, emptydir), fromPath)
+                elif child.is_dir() and not any(child.iterdir()):
+                    info = ZipArchive.createFullInfo(child, fromPath)
                     ZipArchive.addEmptyDir(archive, info)
             archive.close()
 
@@ -51,9 +50,9 @@ class ZipArchive:
         return info
 
     @staticmethod
-    def createFullInfo(path, fromPath):
-        in_stat = os.stat(path)
-        info = ZipArchive.createInfo(os.path.relpath(path, fromPath))
+    def createFullInfo(relpath, fromPath):
+        in_stat = (fromPath / relpath).stat()
+        info = ZipArchive.createInfo(relpath)
         ZipArchive.seiPermisions(info, os.stat.S_IMODE(in_stat.st_mode))
         ZipArchive.seiMTime(info, in_stat.st_mtime)
         return info

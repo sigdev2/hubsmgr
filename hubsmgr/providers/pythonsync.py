@@ -57,8 +57,9 @@ class PythonSync(Provider):
     def clone(self, remote, opts):
         if not remote in self.__remotes:
             return -1
-        if not self.path.exists() or not self.path.is_dir():
-            self.path.mkdir(parents=True)
+        parentPath = self.path.parent
+        if not parentPath.exists() or not parentPath.is_dir():
+            parentPath.mkdir(parents=True)
         for path in self.__remotes[remote]:
             self.__copyTree(path, self.path, opts)
             return 0

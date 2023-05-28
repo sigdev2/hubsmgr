@@ -1,38 +1,45 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import parserutils
 import re
-from parseitem import ParseItem
 
-class ProjectsParser:
-    __slots__ = [r'projects', r'shorts', r'hubs']
+from utility import parserutils # pylint: disable=no-name-in-module
+from parsers.parser import Parser
+from parsers.parseitem import ParseItem # pylint: disable=import-error disable=no-name-in-module
 
-    PROJECT_PROPS = { r'sync': [r'pull', r'push', r'freeze', r'autocommit'] }
-    PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_-]+')
+class ProjectsParser(Parser):
+    __slots__ = (r'projects', r'__shorts', r'__hubs')
+
+    PROJECT_CHECK_RX = re.compile(r'^(?!/hubs|/shorts)/[A-z_\-0-9]+')
 
     def __init__(self, shorts, hubs):
-        self.projects = dict()
-        self.shorts = shorts
-        self.hubs = hubs
+        self.__shorts = shorts
+        self.__hubs = hubs
+        super().__init__(
+            { r'sync': (r'pull', r'push', r'freeze', r'autocommit'),
+              r'hubs' : self.__hubs.keys() },
+            r'options', ProjectsParser.PROJECT_CHECK_RX)
 
-    def check(self, path):
-        return ProjectsParser.PROJECT_CHECK_RX.match(path)
+    def countHubs(self):
+        return len(self.__hubs)
 
-    def process(self, project, projectName):
-        project = parserutils.parseSet(project)
-        if len(project) > 0:
-            keywords = ProjectsParser.PROJECT_PROPS
-            keywords[r'hubs'] = self.hubs.keys()
-            parameters = parserutils.parseKeywords(self.__unpack(project), keywords, r'options')
-            hubsKeys = parameters[r'hubs']
-            hubs = [self.hubs[key] for key in hubsKeys if key in self.hubs]
+    def process(self, data, node):
+        project = parserutils.parseSet(data)
+        if len(project) <= 0:
+            return False
+        parameters = self.parseKeywords(self.__unpack(project, set()))
+        hubsKeys = parameters[r'hubs']
+        hubs = tuple(self.__hubs[key] for key in hubsKeys if key in self.__hubs)
+        if len(hubs) > 0:
             parameters[r'hubs'] = hubs
-            if len(hubs) > 0:
-                self.projects[projectName] = ParseItem(projectName, parameters)
+            auth, name, target = parserutils.parseProjectNameParts(node)
+            parameters[r'auth'] = auth
+            parameters[r'target'] = target
+            self.items[name] = ParseItem(name, parameters)
         return True
-    
-    def __unpack(self, keys, vis = set()):
-        return { sub for key in keys if not(key in vis)
-                     for sub in (self.__unpack(self.shorts[key].params, vis.union({key})) if key in self.shorts else {key}) }
 
+    def __unpack(self, keys, vis):
+        return { sub for key in keys if not key in vis
+                     for sub in (self.__unpack(self.__shorts[key].parameters[r'short'], vis.union({key}))
+                                 if key in self.__shorts
+                                 else (key,)) }

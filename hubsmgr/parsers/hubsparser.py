@@ -1,26 +1,19 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import parserutils
 import re
-from parseitem import ParseItem
 
-class HubsParser:
-    __slots__ = [r'hubs']
+from parsers.parser import Parser
 
-    HUBS_KETWORDS = { r'providers': [r'git', r'pysync'],
-                      r'options': [r'pull', r'push', r'freeze', r'managed'] }
-    HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_-]+')
+class HubsParser(Parser):
+    __slots__ = ()
+
+    HUBS_CHECK_RX = re.compile(r'^/hubs/[A-z_\-0-9]+')
 
     def __init__(self):
-        self.hubs = dict()
+        super().__init__({ r'providers': (r'git', r'pysync'),
+                                           r'options': (r'pull', r'push', r'freeze', r'managed') },
+                                         r'paths', HubsParser.HUBS_CHECK_RX)
 
-    def check(self, path):
-        return HubsParser.HUBS_CHECK_RX.match(path)
-
-    def process(self, hubList, hubName):
-        hubList = parserutils.parseSet(hubList)
-        parameters = parserutils.parseKeywords(hubList, HubsParser.HUBS_KETWORDS, r'paths')
-        if (len(parameters[r'paths']) > 0) and len(parameters[r'providers']) > 0:
-            self.hubs[hubName] = ParseItem(hubName, parameters)
-        return True
+    def validate(self, parameters):
+        return (len(parameters[r'paths']) > 0) and len(parameters[r'providers']) > 0

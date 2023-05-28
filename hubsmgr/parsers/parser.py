@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utility import parserutils
-from parsers.parseitem import ParseItem
+from utility import parserutils # pylint: disable=no-name-in-module
+from parsers.parseitem import ParseItem # pylint: disable=import-error disable=no-name-in-module
 
 class Parser:
     __slots__ = (r'items', r'__props', r'__residue', r'__checkrx')

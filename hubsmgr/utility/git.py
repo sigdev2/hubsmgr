@@ -2,10 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import re
-import pathlib
 import os
 
-from utility.memoized_method import weak_lru
+from utility.memoized_method import weak_lru # pylint: disable=import-error disable=no-name-in-module
 
 class Git:
     __slots__ = (r'__path', r'__out', r'__run', r'__weakref__')

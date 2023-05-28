@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import yaml
-from parsers.shortsparser import ShortsParser
+from parsers.shortsparser import ShortsParser # pylint: disable=import-error disable=no-name-in-module
 from parsers.projectsparser import ProjectsParser
-from parsers.hubsparser import HubsParser
+from parsers.hubsparser import HubsParser # pylint: disable=import-error disable=no-name-in-module
 
 class SpecYamlParser:
     __slots__ = ()

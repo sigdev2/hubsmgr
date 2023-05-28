@@ -3,9 +3,9 @@
 
 import re
 
-from utility import parserutils
+from utility import parserutils # pylint: disable=no-name-in-module
 from parsers.parser import Parser
-from parsers.parseitem import ParseItem
+from parsers.parseitem import ParseItem # pylint: disable=import-error disable=no-name-in-module
 
 class ProjectsParser(Parser):
     __slots__ = (r'projects', r'__shorts', r'__hubs')

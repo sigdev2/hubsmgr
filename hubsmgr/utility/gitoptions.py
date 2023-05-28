@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utility import sha1utils
+from utility import sha1utils # pylint: disable=no-name-in-module
 
 class GitOptions:
     __slots__ = (r'nosubmodules',

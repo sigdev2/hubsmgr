@@ -5,7 +5,7 @@ import pathlib
 import shutil
 import tempfile
 
-from utility import arhive, archiveutils
+from utility import arhive, archiveutils # pylint: disable=no-name-in-module
 from providers.providerproxy import ProviderProxy
 
 class ArchiveProxy(ProviderProxy):

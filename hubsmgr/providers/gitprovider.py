@@ -94,7 +94,7 @@ class GitProvider(Provider):
                        not storedContext.revision in opts.revisions:
                         checkoutRevision = list(opts.revisions)[0]
                     if newRevision != checkoutRevision:
-                        return self.__git.checkout(remote, checkoutRevision, True)
+                        return self.__git.checkout(checkoutRevision, True)
                     return r''
 
                 # restore strict specified tag
@@ -109,7 +109,7 @@ class GitProvider(Provider):
                                 checkoutRevision = revision
                                 break
                         if (checkoutRevision is None) or (newRevision != checkoutRevision):
-                            return self.__git.checkout(remote, checkoutTag, True)
+                            return self.__git.checkout(checkoutTag, True)
                         return r''
 
                 # restore HEAD strict specified branch
@@ -119,21 +119,21 @@ class GitProvider(Provider):
                                      else list(opts.branches)[0]
                     checkoutRevision = opts.getRealBranchRevision(checkoutBranch)
                     if (checkoutRevision is None) or (newRevision != checkoutRevision):
-                        return self.__git.checkout(remote, checkoutBranch, True)
+                        return self.__git.checkout(checkoutBranch, True)
                     return r''
 
                 # restore last revision
                 if newRevision != storedContext.revision:
                     if len(storedContext.branch) > 0 and storedContext.isBranchHead:
-                        return self.__git.checkout(remote, storedContext.branch, True)
-                    return self.__git.checkout(remote, storedContext.revision, True)
+                        return self.__git.checkout(storedContext.branch, True)
+                    return self.__git.checkout(storedContext.revision, True)
                 return r''
             cmds.append(restoreRevision)
 
             # checkout free tags
             if not opts.notags:
                 for tag in storedContext.freeTags.intersection(opts.tags):
-                    cmds += self.__git.checkout(remote, tag + r' .', True)
+                    cmds += self.__git.checkout(tag + r' .', True)
 
             # update submodules
             if not opts.nosubmodules:

@@ -204,11 +204,11 @@ class Git:
 
     # operations
 
-    def checkout(self, remoteName, tagOrBranchOrRevision, getCommands = False):
+    def checkout(self, tagOrBranchOrRevision, getCommands = False):
         def cmd():
             self.clearCurrentBranchCache()
             self.clearChangesCache()
-            return r'git checkout ' + remoteName + r' ' + tagOrBranchOrRevision
+            return r'git checkout ' + tagOrBranchOrRevision
         if getCommands:
             return [cmd]
         if not self.__path.exists():
@@ -242,7 +242,7 @@ class Git:
     def pull_branch_with_checkout(self, remoteName, branch, isNew, unrelated, getCommands = False):
         cmds = [self.fetch(remoteName, branch + (r':' + branch if isNew else r''), True)[0]]
         if not isNew:
-            cmds.append(lambda : self.checkout(remoteName, branch, True)[0]
+            cmds.append(lambda : self.checkout(branch, True)[0]
                         if self.getCurrentBranch() != branch
                         else r'')
             cmds.append(self.merge(remoteName, branch, unrelated, True)[0])

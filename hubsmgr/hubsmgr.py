@@ -13,7 +13,7 @@ from process import ProjectProcessor
 from parsers.specyaml import SpecYamlParser
 
 def processProjects(projects, root):
-    i = 0
+    i = 1
     count = len(projects)
     def out(message, logTag):
         Logger.partmessage(i, count, logTag, message)
@@ -23,8 +23,8 @@ def processProjects(projects, root):
         e = processor.process(project)
         if e != 0:
             Logger.error(r'Operation return exit code: ' + str(e))
-        i += 1
         Logger.partend(i, count, project.id)
+        i += 1
 
 def sync(config):
     os.chdir(config.parent)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from utility import pathutils, git, gitoptions
+from utility import pathutils, git, gitoptions # pylint: disable=no-name-in-module
 from providers.provider import Provider
 
 class CheckoutContext:
@@ -47,7 +47,7 @@ class GitProvider(Provider):
             return 0
         return self.__git.commit(message, addAll)
 
-    def pull(self, remote, textOpts):
+    def pull(self, remote, textOpts): # pylint: disable=arguments-renamed
         if not remote in self.remotes:
             return -1
         storedContext = CheckoutContext()
@@ -144,7 +144,7 @@ class GitProvider(Provider):
                 return e
         return 0
 
-    def push(self, remote, textOpts):
+    def push(self, remote, textOpts): # pylint: disable=arguments-renamed
         if not remote in self.remotes:
             return -1
         for url in self.remotes[remote]:
@@ -170,7 +170,7 @@ class GitProvider(Provider):
                     return e
         return 0
 
-    def clone(self, remote, textOpts):
+    def clone(self, remote, textOpts): # pylint: disable=arguments-renamed
         e = -1
         if not remote in self.remotes:
             return e

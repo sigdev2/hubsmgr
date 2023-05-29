@@ -1,5 +1,5 @@
 hubs:
-    githubsigdev: git https://github.com/sigdev2/
+    githubsigdev: git https://github.com/sigdev2/{{project}}.git
     gittest: git ./gittest
     gittestpysync: pysync ./gittest
     manyhubs: git ./manyhubs1 ./manyhubs2 ./manyhubs3

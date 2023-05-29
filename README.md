@@ -1,6 +1,6 @@
 <p align="center">
     <h3 align="center">Hubsmgr</h3>
-    <p align="center">Last version 0.1.1-a1</p>
+    <p align="center">Last version 0.1.2-a1</p>
 </p>
 
 

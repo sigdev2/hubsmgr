@@ -25,14 +25,14 @@ Console usage:
 The program will load finded yaml file or all yaml files in the directory. For the processed files, folder will be created and will be synchronization by description in the contents of the yaml file.
 
 The yaml file contains a description of the structure of projects and the order of synchronization, consisting of the following elements:
- - A named list of **hubs**, where each hub contains a line with paths or urls or hubs and the following parameters:
+ - A named list of **hubs**, where each hub contains a line with paths or urls (support template **{{project}}** which will be replaced by the name of the project) and the following parameters:
     - *The name of the provider*. Currently only **git** and **pysync** *(just script sync, no support for deleting files)* are supported
     - Sync options for the hub *(default **pull** and **push**)*:
         - **pull** - only download from the given pool of repositories
         - **push** - only upload to the given pool of repositories
         - **freeze** - clone only, do not update
     - managed - if the remote repository is locally available, then you can specify this option so that the script takes over the management of this remote repository and clones it if it is not there, pulling/pushing/committing if necessary on its behalf
- - *Named list of categorized projects*. Each project will have its own folder, categories is ignored. You can specify the following parameters as arguments to a project:
+ - *Named list of categorized projects*. Each project will have its own folder specified in name. Project name supports template for extracting the project name used for setting in the hub addresses, for this the project name must be enclosed in double curly brackets: **{{myproject}}/src**. Categories is ignored. You can specify the following parameters as arguments to a project:
     - *One or more hubs* to sync with
     - Project synchronization options:
         - **pull** - only download this project
@@ -60,14 +60,14 @@ Additional options for providers:
 Example of yaml:
 
     hubs:
-        github: git https://github.com/username/ pull
+        github: git https://github.com/username/{{project}}.git pull
         localhub: git ./localhub managed
     shorts:
         GitHub: github pull
 
     ProjectCategory:
         ProjectSubCategory:
-            myproject: GitHub localhub
+            {{myproject}}/src: GitHub localhub
 
 ## License
 

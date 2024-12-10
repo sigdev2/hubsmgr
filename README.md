@@ -32,7 +32,7 @@ The yaml file contains a description of the structure of projects and the order 
         - **push** - only upload to the given pool of repositories
         - **freeze** - clone only, do not update
     - managed - if the remote repository is locally available, then you can specify this option so that the script takes over the management of this remote repository and clones it if it is not there, pulling/pushing/committing if necessary on its behalf
- - *Named list of categorized projects*. Each project will have its own folder specified in name. Project name supports template for extracting the project name used for setting in the hub addresses, for this the project name must be enclosed in double curly brackets: **{{project}}/src**. Categories is ignored. You can specify the following parameters as arguments to a project:
+ - *Named list of categorized projects*. Each project will have its own folder specified in name. Project name supports template for extracting the project name used for setting in the hub addresses, for this the project name must be enclosed in double curly brackets: **{{MyProjectName}}/src**. Categories is ignored. You can specify the following parameters as arguments to a project:
     - *One or more hubs* to sync with
     - Project synchronization options:
         - **pull** - only download this project
@@ -63,11 +63,11 @@ Example of yaml:
         github: git https://github.com/username/{{project}}.git pull
         localhub: git ./localhub managed
     shorts:
-        GitHub: github pull
+        GitHub: github
 
     ProjectCategory:
         ProjectSubCategory:
-            {{project}}/src: GitHub localhub
+            {{MyProjectName}}/src: GitHub localhub
 
 ## License
 
